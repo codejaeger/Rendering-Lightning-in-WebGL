@@ -34,7 +34,7 @@ const stochasticModel = () => {
         1,    // sigma ?
         2560,  // blur render target resolution
     );
-    // composer.addPass(bloomPass);
+    composer.addPass(bloomPass);
 
     const filmPass = new FilmPass(
         0.35,   // noise intensity
@@ -44,7 +44,7 @@ const stochasticModel = () => {
     );
     filmPass.renderToScreen = true;
     // document.body.appendChild(renderer.domElement);
-    // composer.addPass(filmPass);
+    composer.addPass(filmPass);
 
 
 
