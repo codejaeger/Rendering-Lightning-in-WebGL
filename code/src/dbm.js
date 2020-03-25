@@ -7,7 +7,124 @@ import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 
 
+const a = 5.0 // grid cell width/height
+const R1 = a / 2;
+const R2 = 50;
+const n = 1;
+const epsilon = 1e-10;
+const origin = [0, 0, 0];
+// stores current charges in configuration
+const charges = [];
+
+// stores possible locations of breakdown
+const candidates = {};
+
+// maintains already marked candidates sites
+const vis = new Set();
+
+function distance(p1, p2) {
+    return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2)
+}
+
+function getCandidates(pos) {
+    const res = [];
+    for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+            for (let k = -1; k <= 1; k++) {
+                if (i == j && k == j && i == 0) continue;
+                res.push([pos[0] + i * a, pos[1] + j * a, pos[2] + k * a]);
+            }
+        }
+    }
+    return res;
+}
+
+// src : https://gist.github.com/brannondorsey/dc4cfe00d6b124aebd3277159dcbdb14
+// sample from probability
+function sample(probs) {
+    const sum = probs.reduce((a, b) => a + b, 0)
+    if (sum <= 0) throw Error('probs must sum to a value greater than zero')
+    const normalized = probs.map(prob => prob / sum)
+    const sample = Math.random()
+    let total = 0
+    for (let i = 0; i < normalized.length; i++) {
+        total += normalized[i]
+        if (sample < total) return i
+    }
+}
+
+function placeCharge(coord) {
+
+    const newCharge = {
+        R: R1,
+        pos: coord,
+        calcPotential: function (cpos) {
+            const r = distance(this.pos, cpos);
+            return 1.0 - this.R / r;
+        }
+    }
+
+    charges.push(newCharge);
+    vis.add(coord.toString());
+
+    // update existing potentials of candidates 
+    Object.keys(candidates).forEach(key => {
+        candidates[key].potential += newCharge.calcPotential(candidates[key].pos);
+    })
+
+    // get new candidates
+    getCandidates(coord).forEach((cpos) => {
+        const key = cpos.toString();
+        if (!vis.has(key)) {
+
+            let totPotential = 0.0;
+            charges.forEach(c => {
+                totPotential += c.calcPotential(cpos);
+            })
+            candidates[key] = {
+                pos: cpos,
+                potential: totPotential,
+                parent: coord
+            };
+
+            vis.add(key);
+        }
+    });
+
+}
+
+
+function iterateOnce() {
+    // returns a line
+    const keys = Object.keys(candidates);
+    const phiVals = keys.map(k => candidates[k].potential);
+    const phiMin = Math.min(...phiVals);
+    const phiMax = Math.max(...phiVals);
+    if ((phiMax - phiMin) < epsilon) throw Error('div by zero diff');
+
+    const phiNormalized = phiVals.map(phi => (phi - phiMin) / (phiMax - phiMin));
+    const probs = phiNormalized.map(phi => Math.pow(phi, n));
+    const key = keys[sample(probs)];
+
+    const cpos = candidates[key].pos;
+    const ppos = candidates[key].parent;
+    const res = [ppos,cpos];
+    placeCharge(cpos);
+    delete candidates[key];
+
+    return res;
+}
+
+function getLine(points) {
+
+    const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geometry, material);
+    return line;
+}
+
 const dbm = () => {
+    placeCharge(origin);
 
     // setup scene and camera
     const scene = new THREE.Scene();
@@ -38,7 +155,7 @@ const dbm = () => {
     const bloomPass = new BloomPass(
         2,    // strength
         9,   // kernel size
-        1,    // sigma ?
+        0.9,    // sigma ?
         2560,  // blur render target resolution
     );
     composer.addPass(bloomPass);
@@ -65,50 +182,18 @@ const dbm = () => {
 
     // add control
     const controls = new OrbitControls(camera, renderer.domElement);
-    
-    
-    // init model
-    var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
-    var points = [];
-    points.push(new THREE.Vector3(0, 0, 0));
-
-    var geometry = new THREE.BufferGeometry().setFromPoints(points);
-    var line = new THREE.Line(geometry, material);
-
-    scene.add(line);
 
 
     let flag = false;
-    const R = 5;
     const update = () => {
-        // setTimeout(() => {
-        if (flag) {
-            // cube.rotation.x += 0.01;
-            return;
-        }
-        // scene.add(cube);
-        // flag=true;
-        // return;
-        const prevP = points[points.length - 1];
-        const theta = Math.random() * (Math.PI / 2.0);
-        const phi = Math.random() * (Math.PI * 2);
-
-        const y = -Math.sin(theta) * R;
-        const x = Math.cos(theta) * Math.sin(phi) * R;
-        const z = Math.cos(theta) * Math.cos(phi) * R;
-        const delta = new THREE.Vector3(x, y, z);
-        const newP = new THREE.Vector3(prevP.x + delta.x, prevP.y + delta.y, prevP.z + delta.z);
-        // console.log(newP);
-        if (newP.y < base.y) {
+        if (flag) return;
+        const endPoints = iterateOnce();
+        scene.add(getLine([new THREE.Vector3(...endPoints[0]), new THREE.Vector3(...endPoints[1])]));
+        if (distance(endPoints[1],origin) > R2) {
             flag = true;
-            console.log('goal reached');
-            return;
+            console.log('boundary hit')
         }
-        points.push(newP);
-        for (let i = 0; i <= 1e8; i++);
-        geometry = new THREE.BufferGeometry().setFromPoints(points);
-        line.geometry = geometry
-        // }, 1000)
+
     }
 
 
