@@ -31,7 +31,7 @@ const stochasticModel = () => {
     const bloomPass = new BloomPass(
         2,    // strength
         9,   // kernel size
-        1,    // sigma ?
+        0.7,    // sigma ?
         2560,  // blur render target resolution
     );
     composer.addPass(bloomPass);

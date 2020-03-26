@@ -7,7 +7,7 @@ import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 
 
-const a = 5.0 // grid cell width/height
+const a = 3.0 // grid cell width/height
 const R1 = a / 2;
 const R2 = 50;
 const n = 1;
@@ -155,7 +155,7 @@ const dbm = () => {
     const bloomPass = new BloomPass(
         2,    // strength
         9,   // kernel size
-        0.9,    // sigma ?
+        0.7,    // sigma ?
         2560,  // blur render target resolution
     );
     composer.addPass(bloomPass);
