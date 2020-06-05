@@ -21,7 +21,7 @@ import * as utils from './Utils';
  */
 
 export default class ElectroStaticSystem {
-    constructor(chargeList,eta , hitsBoundary, potFunc) {
+    constructor(chargeList, eta, hitsBoundary, potFunc) {
 
         this.chargeList = chargeList; // will be usefull later to reset
         this.charges = {};
@@ -75,7 +75,7 @@ export default class ElectroStaticSystem {
         // insert candidate site and update its potential due to all charges
         if (!this.charges.hasOwnProperty(key) && !this.candidates.hasOwnProperty(key)) {
             let potential = 0;
-            Object.keys(this.charges).forEach((k)=>{
+            Object.keys(this.charges).forEach((k) => {
                 potential += this.charges[k].calcPotential(pos)
             })
             const cand = new Candidate(key, pos, potential, pkey)
@@ -93,17 +93,17 @@ export default class ElectroStaticSystem {
 
         const phiNormalized = phiVals.map(phi => (phi - phiMin) / (phiMax - phiMin));
         const probs = phiNormalized.map(phi => Math.pow(phi, this.eta));
-        
+
         // sample a candidate site from prob dist
         const key = keys[utils.getSampleIndex(probs)];
         const cand = this.candidates[key];
-        const res = [this.charges[cand.parentKey].position,cand.position];
-        
+        const res = [this.charges[cand.parentKey].position, cand.position];
+
         // 0.update graph
-        this.graph.insertNode(key,cand.position,cand.potential,cand.parentKey)
+        this.graph.insertNode(key, cand.position, cand.potential, cand.parentKey)
 
         // 1.insert a charge at this site
-        this.insertCharge(key,cand.position,GLBL.R1)
+        this.insertCharge(key, cand.position, GLBL.R1)
 
         // 2.delete this as candidate site
         delete this.candidates[key];
@@ -113,16 +113,18 @@ export default class ElectroStaticSystem {
             this.insertCandidate(cpos.toString(), cpos, key);
         })
 
-        return res;
+        return { 'endPoints': res, key };
     }
 
-    evolve(steps=Infinity) {
+    evolve(steps = Infinity) {
         // run for step iteration 
         // if end point hits boundary stop
         for (let i = 0; i < steps; i++) {
-            // console.log(i)
-            if (this.hitsBoundary(this.evolveOnce()[1])) {
-                console.log('hit')
+            console.log(i)
+            const {endPoints,key} = this.evolveOnce();
+            if (this.hitsBoundary(endPoints[1])) {
+                console.log('hit',key)
+                this.graph.boundaryAt(key)
                 return true;
             }
         }

@@ -69,10 +69,36 @@ const testModel = () => {
 
 
     function getLine(points) {
-        const material = new THREE.LineBasicMaterial({ color: new THREE.Color(0, 255, 255) });
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(geometry, material);
-        return line;
+        // const material = new THREE.LineBasicMaterial({ color: new THREE.Color(0, 255, 255) });
+        // const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        // const line = new THREE.Line(geometry, material);
+        let p0 = points[0]
+        let p1 = points[1]
+
+        let v = p1.clone().sub(p0.clone())
+        let u = new THREE.Vector3(0,1,0)
+        let mid = ((p1.clone().add(p0.clone()))).divideScalar(2);
+        // console.log('v',v)
+        // console.log('mid',mid)
+        var geometry = new THREE.CylinderGeometry(0.125, 0.2, v.length(), 32);
+        var material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0, 255, 255) });
+        var cylinder = new THREE.Mesh(geometry, material);
+
+        u = u.normalize();
+        v = v.normalize();
+        let axis = u.clone().cross(v);
+        axis = axis.normalize();
+        let angle = Math.acos(u.clone().dot(v));
+        // console.log(axis,angle)
+        cylinder.translateX(mid.x)
+        cylinder.translateY(mid.y)
+        cylinder.translateZ(mid.z)
+        if(axis.length()>GLBL.EPS) {
+            cylinder.rotateOnWorldAxis(axis,angle);
+        }
+
+
+        return cylinder;
     }
 
 
@@ -87,7 +113,7 @@ const testModel = () => {
 
     const update = () => {
         if (counter > 0) {
-            const endPoints = system.evolveOnce();
+            const endPoints = system.evolveOnce()['endPoints'];
             const _l = getLine(([new THREE.Vector3(...endPoints[0]), new THREE.Vector3(...endPoints[1])]));
             scene.add(_l);
         }
@@ -109,7 +135,13 @@ const testModel = () => {
         folder.open();
     }
 
+
     let then = 0;
+    // let l_ = getLine([new THREE.Vector3(0,0,0),new THREE.Vector3(0,20,0)])
+    // scene.add(l_)
+    // let l__ = getLine([new THREE.Vector3(10,10,0),new THREE.Vector3(20,20,0)])
+    // scene.add(l__)
+    
     function render(now) {
         now *= 0.001;
         const deltaTime = now - then;
