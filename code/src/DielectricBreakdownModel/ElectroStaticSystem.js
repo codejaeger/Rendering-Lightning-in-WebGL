@@ -13,11 +13,14 @@ import * as utils from './Utils';
  *  candidates
  *  potFunc: hof that will be used to generate potential function calculater for charges
  *  hitsBoundary : predicate that check for boundary reach
+ * 
  * Method:
  *  init: initialises system with root node as a charge chosen randomly
  *         pushes its candidates sites and updates the graph
  *  insertCharge
  *  insertCandidate
+ *  evolveOnce
+ *  evolve
  */
 
 export default class ElectroStaticSystem {
@@ -124,7 +127,9 @@ export default class ElectroStaticSystem {
             const {endPoints,key} = this.evolveOnce();
             if (this.hitsBoundary(endPoints[1])) {
                 console.log('hit',key)
-                this.graph.boundaryAt(key)
+                // update graph channels 
+                this.graph.boundaryAt(key);
+                this.graph.calcChannels();
                 return true;
             }
         }

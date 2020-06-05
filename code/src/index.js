@@ -17,15 +17,16 @@ import testModel from './test';
 //     dbm1();
 // }
 
-let system = new ElectroStaticSystem([[0,0,0],[1,1,1],[2,2,2]],1,(pos)=>{
-    return utils.distance(pos,[0,0,0])>GLBL.R2;
-},utils.potFuncForUnitCenteredCharge)
+// let system = new ElectroStaticSystem([[0,0,0],[1,1,1],[2,2,2]],1,(pos)=>{
+//     return utils.distance(pos,[0,0,0])>GLBL.R2;
+// },utils.potFuncForUnitCenteredCharge)
 
 
-system.init()
-system.evolve()
-let graph = system.graph;
-graph.calcChannels();
-console.log(JSON.parse(JSON.stringify(graph)))
+// system.init()
+// system.evolve()
+// let graph = system.graph;
+// graph.calcChannels();
 
-// testModel();
+
+
+testModel();
