@@ -97,7 +97,7 @@ export default class ElectroStaticSystem {
         // sample a candidate site from prob dist
         const key = keys[utils.getSampleIndex(probs)];
         const cand = this.candidates[key];
-        const res = cand.position;
+        const res = [this.charges[cand.parentKey].position,cand.position];
         
         // 0.update graph
         this.graph.insertNode(key,cand.position,cand.potential,cand.parentKey)
@@ -121,10 +121,11 @@ export default class ElectroStaticSystem {
         // if end point hits boundary stop
         for (let i = 0; i < steps; i++) {
             // console.log(i)
-            if (this.hitsBoundary(this.evolveOnce())) {
+            if (this.hitsBoundary(this.evolveOnce()[1])) {
                 console.log('hit')
-                break;
+                return true;
             }
         }
+        return false;
     }
 }
