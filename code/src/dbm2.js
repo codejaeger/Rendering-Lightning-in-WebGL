@@ -11,7 +11,7 @@ import { Geometry } from 'three';
 const a = 3.0 // grid cell width/height
 const R1 = a / 2;
 const R2 = 60;
-const n = 5.2;
+const n = 8.5;
 const epsilon = 1e-10;
 const origin = [0, 0, 0];
 
@@ -42,7 +42,7 @@ function distance(p1, p2) {
 function getCandidates(pos) {
     const res = [];
     for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 0; j++) {
+        for (let j = -1; j <= 1; j++) {
             for (let k = -1; k <= 1; k++) {
                 if (i == j && k == j && i == 0) continue;
                 res.push([pos[0] + i * a, pos[1] + j * a, pos[2] + k * a]);

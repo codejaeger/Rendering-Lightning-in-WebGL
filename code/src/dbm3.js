@@ -10,8 +10,8 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 const a = 3.0 // grid cell width/height
 const R1 = a / 2;
 const R2 = 60;
-const n = 4;
-const npos = 4;
+const n = 3;
+const npos = 3;
 const epsilon = 1e-10;
 const origin = [0, 0, 0];
 const dest = [0,-60,0];

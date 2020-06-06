@@ -9,19 +9,19 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 
 const a = 3.0 // grid cell width/height
 const R1 = a / 2;
-const R2 = 500;
-const n = 1;
+const R2 = 50;
+const n = 5;
 const epsilon = 1e-10;
 const origin = [0, 0, 0];
 const dest = [0,-60,0];
 // stores current charges in configuration
-const charges = [];
+let charges = [];
 
 // stores possible locations of breakdown
-const candidates = {};
+let candidates = {};
 
 // maintains already marked candidates sites
-const vis = new Set();
+let vis = new Set();
 
 function distance(p1, p2) {
     return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2)
@@ -118,8 +118,7 @@ function iterateOnce() {
 }
 
 function getLine(points) {
-
-    const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+    const material = new THREE.LineBasicMaterial({ color: new THREE.Color(0,255,255) });
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     const line = new THREE.Line(geometry, material);
     return line;
@@ -186,20 +185,30 @@ const dbm = () => {
     // add control
     const controls = new OrbitControls(camera, renderer.domElement);
 
-
+    let glbl_lines = []
     let flag = false;
     const update = () => {
-        if (flag) return;
+        if (flag) return flag;
         const endPoints = iterateOnce();
-        scene.add(getLine([new THREE.Vector3(...endPoints[0]), new THREE.Vector3(...endPoints[1])]));
+        const _l = getLine(([new THREE.Vector3(...endPoints[0]), new THREE.Vector3(...endPoints[1])]));
+        glbl_lines.push(_l)
+        scene.add(_l);
         if (distance(endPoints[1],origin) > R2) {
             flag = true;
             console.log('boundary hit')
+            // refresh
+            glbl_lines.forEach(e=>{
+                scene.remove(e);
+            })
+            glbl_lines = [];
+            candidates = {}
+            charges = [];
+            vis = new Set();
         }
-
+        return flag;
     }
 
-
+    
     // effects controller
     const gui = new GUI();
     {
@@ -218,12 +227,18 @@ const dbm = () => {
 
     // render loop
     let then = 0;
+    
+   
     function render(now) {
         now *= 0.001;
         const deltaTime = now - then;
         then = now;
         // renderer.render(scene, camera);
-        update();
+        for(let i=0;i<1;i++)update();
+        if(flag){
+            flag=false;
+            placeCharge(origin);
+        }
         composer.render(deltaTime);
         requestAnimationFrame(render);
     }
