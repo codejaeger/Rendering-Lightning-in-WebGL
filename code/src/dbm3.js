@@ -9,28 +9,41 @@ import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 
 const a = 3.0 // grid cell width/height
 const R1 = a / 2;
-const R2 = 500;
-const n = 1;
+const R2 = 60;
+const n = 4;
+const npos = 4;
 const epsilon = 1e-10;
 const origin = [0, 0, 0];
 const dest = [0,-60,0];
+let flag = false;
+let lowest = 0;
+let positive_break = false;
+
+var flag2 = false
+var e1 = []
+var e2 = []
+var e3 = []
+
 // stores current charges in configuration
 const charges = [];
 
 // stores possible locations of breakdown
 const candidates = {};
 
+const pos_candidates = {};
+
+
 // maintains already marked candidates sites
-const vis = new Set();
+const vis = new Map();
 
 function distance(p1, p2) {
     return Math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2)
 }
 
-function getCandidates(pos) {
+function getCandidates(pos, charge) {
     const res = [];
     for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
+        for (let j = -1 + (charge>0?2:0); j <= 0 + (charge>0?1:0); j++) {
             for (let k = -1; k <= 1; k++) {
                 if (i == j && k == j && i == 0) continue;
                 res.push([pos[0] + i * a, pos[1] + j * a, pos[2] + k * a]);
@@ -54,19 +67,50 @@ function sample(probs) {
     }
 }
 
-function placeCharge(coord, charge) {
-
+function placeCharge(coord, par, charge) {
     const newCharge = {
         R: R1,
         pos: coord,
+        charge: charge,
         calcPotential: function (cpos) {
             const r = distance(this.pos, cpos);
-            return charge * this.R / r;
+            // return (1 - this.R / r);
+            const c = [ -1/5, 1, -21/10, 1];
+            var pot = 0 ;
+            const dif = [cpos[0] - this.pos[0], cpos[1] - this.pos[1], cpos[2] - this.pos[2]];
+            const nrm = distance(dif, [0,0,0]);
+            const theta = Math.acos(dif[1]/nrm);
+            for (let l = 0; l < 4; l++)
+            {
+                const al = c[l] * (1/(Math.pow(R2,l) - Math.pow(R1, 2*l+1)/Math.pow(R2, l+1)));
+                const bl = -1 * Math.pow(R1, 2*l+1) * al;
+                const scale = -1 * (al*Math.pow(r,l) + bl*1/Math.pow(r,l+1));
+                if( l==0 )
+                {
+                    pot += scale;
+                }
+                else if( l==1 )
+                {
+                    const x = Math.cos(theta);
+                    pot += scale * x;
+                }
+                else if( l==2 )
+                {
+                    const x = Math.cos(theta);
+                    pot += scale * 1/2 * (3*x*x - 1);
+                }
+                else if( l==3 )
+                {
+                    const x = Math.cos(theta);
+                    pot += scale * 1/2 * (5*x*x*x - 3*x);
+                }
+            }
+            return pot;
         }
     }
 
     charges.push(newCharge);
-    vis.add(coord.toString());
+    vis.set(coord.toString(), [charge, par]);
 
     // update existing potentials of candidates 
     Object.keys(candidates).forEach(key => {
@@ -74,11 +118,23 @@ function placeCharge(coord, charge) {
     })
 
     // get new candidates
-    getCandidates(coord).forEach((cpos) => {
+    getCandidates(coord, charge).forEach((cpos) => {
         const key = cpos.toString();
-        if (!vis.has(key)) {
-
-            let totPotential = 0.0;
+        if (vis.get(key) != undefined) 
+        {
+            if(charge * vis.get(key)[0] < 0)
+            {
+                console.log("Hey we found the other end", charge, coord, key);
+                flag2=true;
+                e1 = coord
+                e2 = cpos
+                e3 = vis.get(key)[1]
+            }
+        }
+        else
+        {
+            // let totPotential = 100 * R1 / distance(dest,cpos);
+            let totPotential = 0;
             charges.forEach(c => {
                 totPotential += c.calcPotential(cpos);
             })
@@ -86,13 +142,92 @@ function placeCharge(coord, charge) {
                 pos: cpos,
                 potential: totPotential,
                 parent: coord,
-                parentcharge: charge
+                parentcharge : charge
             };
 
-            vis.add(key);
+            vis.set(key, [charge, coord]);
         }
     });
 
+}
+
+
+
+function placeposCharge(coord, par, charge) {
+
+    console.log("2")
+    const newCharge = {
+        R: R1,
+        pos: coord,
+        charge: charge,
+        calcPotential: function (cpos) {
+            const r = distance(this.pos, cpos);
+            return this.R / r;
+        }
+    }
+
+    charges.push(newCharge);
+    vis.set(coord.toString(), [charge, par]);
+
+    // update existing potentials of candidates 
+    Object.keys(pos_candidates).forEach(key => {
+        pos_candidates[key].potential += newCharge.calcPotential(pos_candidates[key].pos);
+    })
+
+    // get new candidates
+    getCandidates(coord, charge).forEach((cpos) => {
+        const key = cpos.toString();
+        if (vis.get(key) != undefined) 
+        {
+            if(charge * vis.get(key)[0] < 0)
+            {
+                console.log("Hey we found the other end", charge, coord, key);
+                flag2=true;
+                e1 = coord
+                e2 = cpos
+                e3 = vis.get(key)[1]
+            }
+        }
+        else
+        {
+            // let totPotential = 100 * R1 / distance(dest,cpos);
+            let totPotential = 0;
+            charges.forEach(c => {
+                totPotential += c.calcPotential(cpos);
+            })
+            pos_candidates[key] = {
+                pos: cpos,
+                potential: totPotential,
+                parent: coord,
+                parentcharge : charge
+            };
+
+            vis.set(key, [charge, coord]);
+        }
+    });
+
+}
+
+
+function pos_iterateOnce() {
+    const keys = Object.keys(pos_candidates);
+    console.log(pos_candidates)
+    const phiVals = keys.map(k => pos_candidates[k].potential);
+    const phiMin = Math.min(...phiVals);
+    const phiMax = Math.max(...phiVals);
+    if ((phiMax - phiMin) < epsilon) throw Error('div by zero diff');
+
+    const phiNormalized = phiVals.map(phi => (phi - phiMin) / (phiMax - phiMin));
+    const probs = phiNormalized.map(phi => Math.pow(phi, npos));
+    const key = keys[sample(probs)];
+
+    const cpos = pos_candidates[key].pos;
+    const ppos = pos_candidates[key].parent;
+    const res = [ppos,cpos];
+    placeposCharge(cpos, vis.get(key)[1], pos_candidates[key].parentcharge);
+    delete pos_candidates[key];
+
+    return res;
 }
 
 
@@ -111,7 +246,7 @@ function iterateOnce() {
     const cpos = candidates[key].pos;
     const ppos = candidates[key].parent;
     const res = [ppos,cpos];
-    placeCharge(cpos, candidates[key].parentcharge)
+    placeCharge(cpos, vis.get(key)[1], candidates[key].parentcharge);
     delete candidates[key];
 
     return res;
@@ -125,9 +260,8 @@ function getLine(points) {
     return line;
 }
 
-const dbm = () => {
-    placeCharge(origin, -1);
-    placeCharge(dest, 1);
+const dbm3 = () => {
+    placeCharge(origin, [0,0,0], -1);
 
     // setup scene and camera
     const scene = new THREE.Scene();
@@ -156,7 +290,7 @@ const dbm = () => {
     composer.addPass(new RenderPass(scene, camera));
 
     const bloomPass = new BloomPass(
-        2,    // strength
+        4,    // strength
         9,   // kernel size
         0.7,    // sigma ?
         2560,  // blur render target resolution
@@ -187,13 +321,34 @@ const dbm = () => {
     const controls = new OrbitControls(camera, renderer.domElement);
 
 
-    let flag = false;
     const update = () => {
         if (flag) return;
+        if (flag2) {
+            console.log("here")
+            scene.add(getLine([new THREE.Vector3(...e1), new THREE.Vector3(...e2)]));
+            scene.add(getLine([new THREE.Vector3(...e2), new THREE.Vector3(...e3)]));
+            flag=true;
+        }
+        if ((lowest+60)<25) {
+            if (!positive_break){
+                placeposCharge(dest, [0,60,0], 1)
+                console.log("1")
+                positive_break = true
+            }
+            else {
+                const pos_endPoints = pos_iterateOnce();
+                scene.add(getLine([new THREE.Vector3(...pos_endPoints[0]), new THREE.Vector3(...pos_endPoints[1])]));
+            }
+        }
         const endPoints = iterateOnce();
+        if (lowest>endPoints[1][1]) {
+            lowest = endPoints[1][1]
+            console.log(lowest)
+        }
         scene.add(getLine([new THREE.Vector3(...endPoints[0]), new THREE.Vector3(...endPoints[1])]));
         if (distance(endPoints[1],origin) > R2) {
             flag = true;
+            console.log(endPoints[1]);
             console.log('boundary hit')
         }
 
@@ -238,4 +393,4 @@ const dbm = () => {
 
 }
 
-export default dbm;
+export default dbm3;

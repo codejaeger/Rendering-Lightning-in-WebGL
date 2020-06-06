@@ -2,6 +2,8 @@ import './index.css';
 import stochasticModel from './stochasticModel.js';
 import dbm from './dbm.js';
 import dbm1 from './dbm1.js';
+import dbm2 from './dbm2.js';
+import dbm3 from './dbm3.js';
 
 const i = parseInt(prompt("enter index of model:"));
 if (i === 0) {
@@ -12,4 +14,10 @@ else if (i === 1) {
 }
 else if (i == 2){
 	dbm1();
+}
+else if (i == 3){
+	dbm2();
+}
+else if (i == 4){
+	dbm3();
 }

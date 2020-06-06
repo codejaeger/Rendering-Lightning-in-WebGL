@@ -5,15 +5,27 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
+import { Geometry } from 'three';
 
 
 const a = 3.0 // grid cell width/height
 const R1 = a / 2;
-const R2 = 500;
-const n = 1;
+const R2 = 60;
+const n = 5.2;
 const epsilon = 1e-10;
 const origin = [0, 0, 0];
-const dest = [0,-60,0];
+
+
+// Plane charge configuration
+// epsilon0 = 8.854187817
+var sigma = 6
+// var y_pl = -60
+var piv = (sigma * 60) / (2)
+
+function get_plane_pot(coord) {
+    return piv - (sigma * coord[1]) / (2)
+}
+
 // stores current charges in configuration
 const charges = [];
 
@@ -30,7 +42,7 @@ function distance(p1, p2) {
 function getCandidates(pos) {
     const res = [];
     for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
+        for (let j = -1; j <= 0; j++) {
             for (let k = -1; k <= 1; k++) {
                 if (i == j && k == j && i == 0) continue;
                 res.push([pos[0] + i * a, pos[1] + j * a, pos[2] + k * a]);
@@ -54,14 +66,15 @@ function sample(probs) {
     }
 }
 
-function placeCharge(coord, charge) {
+function placeCharge(coord) {
 
     const newCharge = {
         R: R1,
         pos: coord,
         calcPotential: function (cpos) {
             const r = distance(this.pos, cpos);
-            return charge * this.R / r;
+            return  - this.R / r;
+            // return pot;
         }
     }
 
@@ -78,15 +91,14 @@ function placeCharge(coord, charge) {
         const key = cpos.toString();
         if (!vis.has(key)) {
 
-            let totPotential = 0.0;
+            let totPotential = get_plane_pot(cpos);
             charges.forEach(c => {
                 totPotential += c.calcPotential(cpos);
             })
             candidates[key] = {
                 pos: cpos,
                 potential: totPotential,
-                parent: coord,
-                parentcharge: charge
+                parent: coord
             };
 
             vis.add(key);
@@ -94,6 +106,7 @@ function placeCharge(coord, charge) {
     });
 
 }
+
 
 
 function iterateOnce() {
@@ -111,7 +124,7 @@ function iterateOnce() {
     const cpos = candidates[key].pos;
     const ppos = candidates[key].parent;
     const res = [ppos,cpos];
-    placeCharge(cpos, candidates[key].parentcharge)
+    placeCharge(cpos);
     delete candidates[key];
 
     return res;
@@ -125,9 +138,8 @@ function getLine(points) {
     return line;
 }
 
-const dbm = () => {
-    placeCharge(origin, -1);
-    placeCharge(dest, 1);
+const dbm2 = () => {
+    placeCharge(origin);
 
     // setup scene and camera
     const scene = new THREE.Scene();
@@ -150,13 +162,20 @@ const dbm = () => {
         scene.add(light);
     }
 
+    var geometry = new THREE.PlaneGeometry(100,100)
+    var material = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide})
+    var plane = new THREE.Mesh( geometry, material );
+    plane.rotateX( Math.PI / 2 );
+    plane.translateZ(70)
+    scene.add( plane );
+
     // add effects 
     renderer.setSize(window.innerWidth, window.innerHeight);
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
 
     const bloomPass = new BloomPass(
-        2,    // strength
+        10,    // strength
         9,   // kernel size
         0.7,    // sigma ?
         2560,  // blur render target resolution
@@ -194,6 +213,7 @@ const dbm = () => {
         scene.add(getLine([new THREE.Vector3(...endPoints[0]), new THREE.Vector3(...endPoints[1])]));
         if (distance(endPoints[1],origin) > R2) {
             flag = true;
+            console.log(endPoints[1]);
             console.log('boundary hit')
         }
 
@@ -238,4 +258,4 @@ const dbm = () => {
 
 }
 
-export default dbm;
+export default dbm2;
