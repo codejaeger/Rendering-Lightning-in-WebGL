@@ -10,6 +10,9 @@ import * as utils from './Utils';
  *  chargeList
  *  charges
  *  eta
+ *  R1
+ *  R2
+ *  A
  *  candidates
  *  potFunc: hof that will be used to generate potential function calculater for charges
  *  hitsBoundary : predicate that check for boundary reach
@@ -24,12 +27,15 @@ import * as utils from './Utils';
  */
 
 export default class ElectroStaticSystem {
-    constructor(chargeList, eta, hitsBoundary, potFunc) {
+    constructor(chargeList, eta, R1, R2, A, hitsBoundary, potFunc) {
 
         this.chargeList = chargeList; // will be usefull later to reset
         this.charges = {};
         this.eta = eta;
         this.candidates = {}
+        this.R1 = R1;
+        this.R2 = R2;
+        this.A = A;
         this.potFunc = potFunc
         this.hitsBoundary = hitsBoundary;
         this.graph = new ArcsGraph();
@@ -43,7 +49,7 @@ export default class ElectroStaticSystem {
         // update charges list to original 
         this.chargeList.forEach((pos) => {
             const key = pos.toString();
-            this.charges[key] = new Charge(key, GLBL.R1, pos, this.potFunc(pos, GLBL.R1))
+            this.charges[key] = new Charge(key, this.R1, pos, this.potFunc(pos, this.R1))
         })
 
 
@@ -54,7 +60,7 @@ export default class ElectroStaticSystem {
         const ch = this.charges[keys[si]]
 
         // insert candidate sites
-        ch.getCandidatesPos(GLBL.A).forEach((cpos) => {
+        ch.getCandidatesPos(this.A).forEach((cpos) => {
             this.insertCandidate(cpos.toString(), cpos, ch.key);
         })
         // update graph and root at this node
@@ -106,13 +112,13 @@ export default class ElectroStaticSystem {
         this.graph.insertNode(key, cand.position, cand.potential, cand.parentKey)
 
         // 1.insert a charge at this site
-        this.insertCharge(key, cand.position, GLBL.R1)
+        this.insertCharge(key, cand.position, this.R1)
 
         // 2.delete this as candidate site
         delete this.candidates[key];
 
         // 3.insert candidate sites of new charge added
-        this.charges[key].getCandidatesPos(GLBL.A).forEach((cpos) => {
+        this.charges[key].getCandidatesPos(this.A).forEach((cpos) => {
             this.insertCandidate(cpos.toString(), cpos, key);
         })
 
@@ -124,9 +130,9 @@ export default class ElectroStaticSystem {
         // if end point hits boundary stop
         for (let i = 0; i < steps; i++) {
             console.log(i)
-            const {endPoints,key} = this.evolveOnce();
+            const { endPoints, key } = this.evolveOnce();
             if (this.hitsBoundary(endPoints[1])) {
-                console.log('hit',key)
+                console.log('hit', key)
                 // update graph channels 
                 this.graph.boundaryAt(key);
                 this.graph.calcChannels();

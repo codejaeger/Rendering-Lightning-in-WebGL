@@ -251,9 +251,10 @@ const testModel = () => {
     }
 
 
-    let system = new ElectroStaticSystem([[0, 0, 0]], GLBL.ETA, (pos) => {
+    let system = new ElectroStaticSystem([[0, 0, 0]], GLBL.ETA,GLBL.R1, GLBL.R2, GLBL.A, (pos) => {
         return utils.distance(pos, [0, 0, 0]) > GLBL.R2;
-    }, utils.potFuncForUnitCenteredCharge)
+    // }, utils.potFuncForUnitCenteredCharge)
+    }, (pos,rad)=> {return utils.potFuncForPlaneCharge(pos,rad,GLBL.R2)})
 
 
     system.init()
