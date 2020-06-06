@@ -163,7 +163,7 @@ export default function teslaCoil() {
         return chargesList;
     }
 
-    const chargesList = generateCharges(primCoilHeight + boxh / 2, primCoilRadius + torTubeRadius, torTubeRadius,4);
+    const chargesList = generateCharges(primCoilHeight + boxh / 2, primCoilRadius + torTubeRadius, torTubeRadius, 4);
     function renderCharge() {
 
         const obj = new THREE.Object3D()
@@ -183,10 +183,10 @@ export default function teslaCoil() {
     /* 
         init the system of charges
     */
-    let origin = [0,primCoilHeight+boxh/2,0]
+    let origin = [0, primCoilHeight + boxh / 2, 0]
     let arcSystem = new ElectroStaticSystem(chargesList, GLBL.ETA, GLBL.R1, GLBL.R2, GLBL.A, (pos) => {
         return utils.distance(pos, origin) > GLBL.R2;
-        }, utils.potFuncForUnitCenteredCharge)
+    }, utils.potFuncForUnitCenteredCharge)
     // }, (pos, rad) => { return utils.potFuncForPlaneCharge(pos, rad, GLBL.R2) })
 
 
@@ -216,8 +216,8 @@ export default function teslaCoil() {
     const speed = 20;
     // define scene update function
     const update = () => {
-        for(let i=0;i<speed-1;i++)graphRenderer.updateScene();
-        if(!graphRenderer.updateScene()) {
+        for (let i = 0; i < speed - 1; i++)graphRenderer.updateScene();
+        if (!graphRenderer.updateScene()) {
             // refresh
             tcModel.remove(arcHolder);
             arcSystem.init();
@@ -230,8 +230,27 @@ export default function teslaCoil() {
             arcHolder = graphRenderer.sceneObj;
             tcModel.add(arcHolder);
         }
-        
+
     }
+
+
+    // setup sound before rendering
+    // create an AudioListener and add it to the camera
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+
+    // create a global audio source
+    const sound = new THREE.Audio(listener);
+
+    // load a sound and set it as the Audio object's buffer
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load('src/data/sound', function (buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+        sound.play();
+    });
+    
 
 
     // setup the render loop

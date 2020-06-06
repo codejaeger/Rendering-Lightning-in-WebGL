@@ -129,10 +129,10 @@ export default class ElectroStaticSystem {
         // run for step iteration 
         // if end point hits boundary stop
         for (let i = 0; i < steps; i++) {
-            console.log(i)
+            // console.log(i)
             const { endPoints, key } = this.evolveOnce();
             if (this.hitsBoundary(endPoints[1])) {
-                console.log('hit', key)
+                // console.log('hit', key)
                 // update graph channels 
                 this.graph.boundaryAt(key);
                 this.graph.calcChannels();
