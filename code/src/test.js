@@ -82,7 +82,7 @@ const testModel = () => {
     }
 
 
-    let system = new StormCloudSystem(10, 0, [0,0,0], -60, 6, 1.5, 60, 3, (pos) => {
+    let system = new StormCloudSystem(10, 0, [0,0,0], -60, 6, 1.5, 30, 3, (pos) => {
         return utils.distance(pos, [0, 0, 0]) > 60;
     // }, utils.potFuncForUnitCenteredCharge)
     })
@@ -123,8 +123,8 @@ const testModel = () => {
         now *= 0.001;
         const deltaTime = now - then;
         then = now;
-        // renderer.render(scene, camera);
         update();
+        // renderer.render(scene, camera);
         composer.render(deltaTime);
         requestAnimationFrame(render);
     }

@@ -4,28 +4,6 @@ import Candidate from './Candidate';
 import ArcsGraph from './ArcsGraph';
 import * as utils from './Utils';
 
-/**
- * class representing out breakdown system
- * Attr:
- *  chargeList
- *  charges
- *  eta
- *  R1
- *  R2
- *  A
- *  candidates
- *  potFunc: hof that will be used to generate potential function calculater for charges
- *  hitsBoundary : predicate that check for boundary reach
- * 
- * Method:
- *  init: initialises system with root node as a charge chosen randomly
- *         pushes its candidates sites and updates the graph
- *  insertCharge
- *  insertCandidate
- *  evolveOnce
- *  evolve
- */
-
 export default class StormCloudSystem {
     constructor(eta, cloudplane, cloudcenter, groundplane, groundsigma, R1, R2, A, hitsBoundary) {
 

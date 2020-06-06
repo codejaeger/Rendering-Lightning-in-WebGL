@@ -5,7 +5,8 @@ import dbm from './dbm.js';
 import dbm1 from './dbm1.js';
 import dbm2 from './dbm2.js';
 import dbm3 from './dbm3.js';
-import testModel from './test.js';
+import GLBL from './DielectricBreakdownModel/Globals';
+import testModel from './test';
 
 // const i = parseInt(prompt("enter index of model:"));
 // if (i === 0) {
@@ -25,4 +26,5 @@ import testModel from './test.js';
 // }
 
 
-testModel()
+// testModel()
+testModel();
