@@ -22,6 +22,8 @@ export default class Charge {
     }
     getCandidatesPos(a) {
         // generate neighbour cells given cell width 'a'
+        // console.log("getCan")
+        // console.log(this.neighbour)
         const pos = this.position;
         const res = [];
         for (let i = this.neighbour.lx; i <= this.neighbour.ux; i++) {

@@ -18,5 +18,9 @@ export default class Candidate {
         this.potential = potential;
         this.parentKey = parentKey;
     }
+    
+    getPosition () {
+        return this.position;
+    }
 
 }

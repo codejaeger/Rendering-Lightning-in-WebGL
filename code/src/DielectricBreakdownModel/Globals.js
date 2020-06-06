@@ -10,5 +10,5 @@ export default  {
     secRad:0.15, // seondary arc radius,
     primCol:new THREE.Color(0,50,255), // color of primary arc
     secCol:new  THREE.Color(0,40, 255), // color of secondary arc
-    neighbour : {lx : -1, ux : 1, ly : -1, uy : 1, ly : -1, uy : 1}
+    neighbour : {lx : -1, ux : 1, ly : -1, uy : 1, lz : -1, uz : 1}
 }

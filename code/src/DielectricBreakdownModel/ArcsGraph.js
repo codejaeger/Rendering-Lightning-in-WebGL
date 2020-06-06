@@ -37,7 +37,7 @@ export default class ArcsGraph {
         }
         this.nodeList.push(key);
 
-        if (updateAdjList) {
+        if (updateAdjList && pkey) {
 
             // insert object {children key : edge type (primary-0,secondary-1) } to adjList[key]
             if (this.adjList.hasOwnProperty(pkey)) {
@@ -55,33 +55,38 @@ export default class ArcsGraph {
     }
     boundaryAt(key) {
         this.boundary = key;
+        console.log(key)
     }
     calcChannels() {
         // calculate channels for all edges
         let key = this.boundary
+        // console.log("Reached")
+        // console.log(key, this.root)
         while(key!==this.root) {
+            // console.log("Hello", key)
             let pkey = this.nodes[key].pkey;
             this.adjList[pkey][key] = 0;
             key = pkey;
         }
+        // console.log("Reached")
         // calculate channels for non-main path nodes
-        let pkey = this.root
-        while(pkey != this.boundary)
-        {
-            var npkey = null
-            for (var key in this.adjList[pkey])
-            {
-                if(this.adjList[pkey][key] == 0)
-                {
-                    npkey = key
-                }
-                else
-                {
-                    this.calcFlickers(key, 1)
-                }
-            }
-            pkey = npkey
-        }
+        // let pkey = this.root
+        // while(pkey != this.boundary)
+        // {
+        //     var npkey = null
+        //     for (var k in this.adjList[pkey])
+        //     {
+        //         if(this.adjList[pkey][k] == 0)
+        //         {
+        //             npkey = k
+        //         }
+        //         else
+        //         {
+        //             this.calcFlickers(k, 1)
+        //         }
+        //     }
+        //     pkey = npkey
+        // }
     }
 
     calcFlickers(parentnode, level)

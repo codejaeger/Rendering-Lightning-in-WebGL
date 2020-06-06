@@ -112,7 +112,11 @@ function placeCharge(coord) {
 function iterateOnce() {
     // returns a line
     const keys = Object.keys(candidates);
+    console.log(candidates)
+
     const phiVals = keys.map(k => candidates[k].potential);
+    console.log(phiVals)
+
     const phiMin = Math.min(...phiVals);
     const phiMax = Math.max(...phiVals);
     if ((phiMax - phiMin) < epsilon) throw Error('div by zero diff');
