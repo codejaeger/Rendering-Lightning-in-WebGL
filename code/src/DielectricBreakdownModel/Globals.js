@@ -2,10 +2,10 @@ import * as THREE from 'three';
 
 export default  {
     EPS : 1e-10,
-    ETA:2.5, 
+    ETA:10, 
     R1 : 1.5, // charge size
     A: 3, // grid cell width
-    R2: 25, // outer radius limit
+    R2: 30, // outer radius limit
     primRad: 0.30, // primary arc radius
     secRad:0.15, // seondary arc radius,
     primCol:new THREE.Color(0,50,255), // color of primary arc
