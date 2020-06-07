@@ -3,45 +3,68 @@ import Charge from './Charge';
 import Candidate from './Candidate';
 import ArcsGraph from './ArcsGraph';
 import * as utils from './Utils';
+import  * as THREE from 'three'
 
-export default class StormCloudSystem {
-    constructor(eta, cloudplane, cloudcenter, groundplane, groundsigma, R1, R2, A, hitsBoundary) {
+export default class PlasmaBallSystem {
+    constructor(eta, ballCenter, surfacePoint, R1, R2, A, hitsBoundary) {
 
         this.charges = {};
         // List of dicts since might have multiple candidate selection sets
         this.candidates = [];
         this.eta = eta;
-        this.cloudplane = cloudplane;
-        this.cloudcenter = cloudcenter;
-        this.groundplane = groundplane;
-        this.groundsigma = groundsigma;
+        this.ballCenter = ballCenter
+        this.surfacePoint = surfacePoint
         this.R1 = R1;
         this.R2 = R2;
         this.A = A;
         this.hitsBoundary = hitsBoundary;
         this.graph = new ArcsGraph();
-        this.graph.rootAt(cloudcenter);
+        this.graph.rootAt(ballCenter);
+
+        var v1 = new THREE.Vector3(0,-1,0)
+        var v2 = new THREE.Vector3(ballCenter[0]-surfacePoint[0],ballCenter[1]-surfacePoint[1],ballCenter[2]-surfacePoint[2])
+        var v3 = new THREE.Vector3(0,0,0)
+        v3.crossVectors(v1, v2)
+        v3.normalize()
+        this.axis = v3
+        this.rotateAngle = -1*v3.angleTo(v1)
+        this.transform = (pos) => {
+            var a = new THREE.Vector3(pos[0]-this.ballCenter[0], pos[1]-this.ballCenter[1], pos[2]-this.ballCenter[2])
+            a.applyAxisAngle(this.axis, this.rotateAngle)
+            // console.log([a.x+this.ballCenter[0], a.y+this.ballCenter[1], a.z+this.ballCenter[2]],"helo")
+            return [a.x+this.ballCenter[0], a.y+this.ballCenter[1], a.z+this.ballCenter[2]]
+        }
+        // console.log(this.rotateAngle)
     }
 
-    init() {
+    // transform (pos) {
+    //     var a = new THREE.Vector3(pos[0]-this.ballCenter[0], pos[1]-this.ballCenter[1], pos[2]-this.ballCenter[2])
+    //     a.applyAxisAngle(this.axis, this.rotateAngle)
+    //     return [a[0]+this.ballCenter[0], a[1]+this.ballCenter[1], a[2]+this.ballCenter[2]]
+    // }
+
+    init(surfacePoint) {
         // free up older configuration
+        console.log(this.transform([0,-60,0]))
+        this.surfacePoint = surfacePoint
         this.charges = {}
         this.candidates = []
         this.graph = new ArcsGraph()
 
-        this.graph.rootAt(this.cloudcenter.toString());
+        this.graph.rootAt(this.ballCenter.toString());
+        this.graph.transform = this.transform
         var candidate1 = {}
-        var rootkey = this.cloudcenter.toString()
+        var rootkey = this.ballCenter.toString()
         candidate1[rootkey] = new Candidate(
             rootkey,
-            this.cloudcenter,
-            this.planePotential([0, 0, 0]),
-            null
+            this.ballCenter,
+            0,
+            rootkey
         )
         this.candidates.push(candidate1)
         // console.log(this.candidates[0][rootkey], "d")
-        this.graph.insertNode(rootkey, this.cloudcenter, this.planePotential([0, 0, 0]), rootkey)
-        this.insertCharge(rootkey, this.R1,  this.cloudcenter, -1)
+        this.graph.insertNode(rootkey, this.transform(this.ballCenter), 0, rootkey)
+        this.insertCharge(rootkey, this.R1,  this.ballCenter, -1)
 
         // console.log(this.charges, "gu")
         delete this.candidates[0][rootkey];
@@ -58,10 +81,6 @@ export default class StormCloudSystem {
         // update charges list to original
     }
 
-    planePotential(coord) {
-        return - (this.groundsigma * coord[1]) / 2 - (this.groundsigma * (this.groundplane - this.cloudplane)) / 2
-    }
-
     isCandidate(key) {
         for(var i = 0; i < this.candidates.length; i++)
         {
@@ -75,7 +94,39 @@ export default class StormCloudSystem {
         // insert charge
         // console.log(pos)
         const ch = new Charge(key, rad, pos, charge, (cpos) => {
-            return  - this.R1 / utils.distance(pos, cpos);
+            const r = utils.distance(pos, cpos);
+            // return (1 - this.R / r);
+            const c = [ -1/5, 1, -21/10, 1];
+            var pot = 0 ;
+            const dif = [cpos[0] - pos[0], cpos[1] - pos[1], cpos[2] - pos[2]];
+            const nrm = utils.distance(dif, [0,0,0]);
+            const theta = Math.acos(dif[1]/nrm);
+            for (let l = 0; l < 4; l++)
+            {
+                const al = c[l] * (1/(Math.pow(this.R2,l) - Math.pow(this.R1, 2*l+1)/Math.pow(this.R2, l+1)));
+                const bl = -1 * Math.pow(this.R1, 2*l+1) * al;
+                const scale = -1 * (al*Math.pow(r,l) + bl*1/Math.pow(r,l+1));
+                if( l==0 )
+                {
+                    pot += scale;
+                }
+                else if( l==1 )
+                {
+                    const x = Math.cos(theta);
+                    pot += scale * x;
+                }
+                else if( l==2 )
+                {
+                    const x = Math.cos(theta);
+                    pot += scale * 1/2 * (3*x*x - 1);
+                }
+                else if( l==3 )
+                {
+                    const x = Math.cos(theta);
+                    pot += scale * 1/2 * (5*x*x*x - 3*x);
+                }
+            }
+            return pot;
         }, GLBL.neighbour)
         this.charges[ch.key] = ch;
         
@@ -96,7 +147,7 @@ export default class StormCloudSystem {
         // insert candidate site and update its potential due to all charges
         // console.log(key,pos,pkey,ckey,"insertCan")
         if (!this.charges.hasOwnProperty(key) && !this.isCandidate(key)) {
-            let potential = this.planePotential(pos);
+            let potential = 0;
             Object.keys(this.charges).forEach((k) => {
                 potential += this.charges[k].calcPotential(pos)
             })
@@ -136,7 +187,7 @@ export default class StormCloudSystem {
         const res = [this.charges[cand.parentKey].position, cand.position];
 
         // 0.update graph
-        this.graph.insertNode(key, cand.position, cand.potential, cand.parentKey)
+        this.graph.insertNode(key, this.transform(cand.position), cand.potential, cand.parentKey)
 
         // 1.insert a charge at this site
         this.insertCharge(key, this.R1, cand.position, this.charges[cand.parentKey].charge)

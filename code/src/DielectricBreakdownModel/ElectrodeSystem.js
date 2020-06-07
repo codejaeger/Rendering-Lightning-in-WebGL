@@ -31,16 +31,19 @@ export default class StormCloudSystem {
 
         this.graph.rootAt(this.cloudcenter.toString());
         var candidate1 = {}
+        var potFunc = (pos) => {
+            return  - this.R1 / utils.distance([0,0,0], pos);
+        }
         var rootkey = this.cloudcenter.toString()
         candidate1[rootkey] = new Candidate(
             rootkey,
             this.cloudcenter,
-            this.planePotential([0, 0, 0]),
+            potFunc,
             null
         )
         this.candidates.push(candidate1)
         // console.log(this.candidates[0][rootkey], "d")
-        this.graph.insertNode(rootkey, this.cloudcenter, this.planePotential([0, 0, 0]), rootkey)
+        this.graph.insertNode(rootkey, this.cloudcenter, potFunc, rootkey)
         this.insertCharge(rootkey, this.R1,  this.cloudcenter, -1)
 
         // console.log(this.charges, "gu")
