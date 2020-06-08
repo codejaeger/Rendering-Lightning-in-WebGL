@@ -10,5 +10,5 @@ import testModel from './test-scripts/test';
 import teslaCoil from './scenes/teslaCoil';
 
 
-testModel()
-// teslaCoil(); 
+// testModel()
+teslaCoil(); 

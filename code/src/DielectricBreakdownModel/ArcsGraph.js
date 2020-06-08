@@ -55,7 +55,7 @@ export default class ArcsGraph {
     }
     boundaryAt(key) {
         this.boundary = key;
-        console.log(key)
+        // console.log(key)
     }
     calcChannels() {
         // calculate channels for all edges

@@ -65,7 +65,10 @@ export default class GraphRenderer {
         this.currentNode += 1;
 
         if (node.pkey !== -1) {
-            this.sceneObj.add(this.getEdgeObject(node.pkey, key))
+            const mask = this.sceneObj.layers.mask;
+            const obj = this.getEdgeObject(node.pkey, key);
+            obj.layers.mask = mask;
+            this.sceneObj.add(obj);
         }
         return true;
     }
