@@ -5,10 +5,10 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
-import GLBL from './DielectricBreakdownModel/Globals';
-import PlasmaBallSystem from './DielectricBreakdownModel/PlasmaBallSystem';
-import * as utils from './DielectricBreakdownModel/Utils';
-import GraphRenderer from './DielectricBreakdownModel/GraphRenderer'
+import GLBL from '../DielectricBreakdownModel/Globals';
+import StormCloudSystem from '../DielectricBreakdownModel/StormCloudSystem';
+import * as utils from '../DielectricBreakdownModel/Utils';
+import GraphRenderer from '../DielectricBreakdownModel/GraphRenderer'
 
 const testModel = () => {
     const scene = new THREE.Scene();
@@ -81,16 +81,14 @@ const testModel = () => {
         folder.open();
     }
 
-    //keep R2 == radius for now
-    var center = [0,0,0]
-    var end = [1,0,0]
-    let system = new PlasmaBallSystem(5.2, center, end, 1.5, 60, 3, (pos) => {
-        return utils.distance(pos, center) > 60;
+
+    let system = new StormCloudSystem(10, 0, [0,0,0], -60, 6, 1.5, 30, 3, (pos) => {
+        return utils.distance(pos, [0, 0, 0]) > 60;
     // }, utils.potFuncForUnitCenteredCharge)
     })
 
 
-    system.init([0, -60, 0])
+    system.init()
     system.evolve()
     let graph = system.graph;
     graph.calcChannels();
@@ -108,7 +106,7 @@ const testModel = () => {
         if(!gr.updateScene()) {
             // done updating start again
             scene.remove(gr.sceneObj);
-            system.init([0, -60, 0])
+            system.init()
             system.evolve()
             graph = system.graph
             graph.calcChannels();

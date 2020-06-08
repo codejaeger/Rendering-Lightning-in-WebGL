@@ -49,7 +49,7 @@ export default class ElectroStaticSystem {
         // update charges list to original 
         this.chargeList.forEach((pos) => {
             const key = pos.toString();
-            this.charges[key] = new Charge(key, this.R1, pos, this.potFunc(pos, this.R1))
+            this.charges[key] = new Charge(key, this.R1, pos, undefined, this.potFunc(pos, this.R1), GLBL.neighbour)
         })
 
 
@@ -71,7 +71,7 @@ export default class ElectroStaticSystem {
     insertCharge(key, pos, rad) {
         // insert charge and update the pot at all candidate sites
         if (!this.charges.hasOwnProperty(key)) {
-            const ch = new Charge(key, rad, pos, this.potFunc(pos, rad))
+            const ch = new Charge(key, rad, pos, undefined, this.potFunc(pos, rad), GLBL.neighbour)
             this.charges[ch.key] = ch;
             // update pot at candidates
             Object.keys(this.candidates).forEach((k) => {
