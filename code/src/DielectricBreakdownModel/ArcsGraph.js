@@ -51,10 +51,6 @@ export default class ArcsGraph {
         }
     }
 
-    transformVertex(fn) {
-        this.transform = fn;
-    }
-
     rootAt(key) {
         this.root = key;
     }

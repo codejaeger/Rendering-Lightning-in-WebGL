@@ -5,18 +5,27 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
-import GLBL from './DielectricBreakdownModel/Globals';
-import PlasmaBallSystem from './DielectricBreakdownModel/PlasmaBallSystem';
-import * as utils from './DielectricBreakdownModel/Utils';
-import GraphRenderer from './DielectricBreakdownModel/GraphRenderer'
+import GLBL from '../DielectricBreakdownModel/Globals';
+import ElectrodeSystem from '../DielectricBreakdownModel/ElectrodeSystem';
+import * as utils from '../DielectricBreakdownModel/Utils';
+import GraphRenderer from '../DielectricBreakdownModel/GraphRenderer'
 
-const testModel = () => {
+const testModel3 = () => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 100);
     camera.lookAt(0, 0, 0);
     const canvas = document.querySelector('#c');
     const renderer = new THREE.WebGLRenderer({ canvas });
+    var geometry = new THREE.SphereGeometry( 5, 0, 0 );
+    var geometry1 = new THREE.SphereGeometry( 5, 0, 0 );
+    geometry.translate(0,60,0)
+    geometry1.translate(60,60,0)
+    var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    var sphere = new THREE.Mesh( geometry, material );
+    var sphere1 = new THREE.Mesh( geometry1, material );
+    scene.add( sphere );
+    scene.add( sphere1 );
 
     {
         const color = 0xFFFFFF;
@@ -82,15 +91,15 @@ const testModel = () => {
     }
 
     //keep R2 == radius for now
-    var center = [0,0,0]
-    var end = [1,0,0]
-    let system = new PlasmaBallSystem(5.2, center, end, 1.5, 60, 3, (pos) => {
+    var center = [0,60,0]
+    var end = [60,60,0]
+    let system = new ElectrodeSystem(6.5, center, end, 1.5, 60, 3, (pos) => {
         return utils.distance(pos, center) > 60;
     // }, utils.potFuncForUnitCenteredCharge)
     })
 
 
-    system.init([0, -60, 0])
+    system.init(end)
     system.evolve()
     let graph = system.graph;
     graph.calcChannels();
@@ -101,6 +110,7 @@ const testModel = () => {
     
     scene.add(gr.sceneObj);
     let flag = false;
+    // var f=0;
     const update = () => {
         // gr.updateScene();
         // gr.updateScene();
@@ -108,7 +118,7 @@ const testModel = () => {
         if(!gr.updateScene()) {
             // done updating start again
             scene.remove(gr.sceneObj);
-            system.init([0, -60, 0])
+            system.init([60, 60, 0])
             system.evolve()
             graph = system.graph
             graph.calcChannels();
@@ -118,6 +128,7 @@ const testModel = () => {
             ],[GLBL.primRad,GLBL.secRad])
             scene.add(gr.sceneObj);
         }
+        return
     }
     
     let then = 0;
@@ -141,4 +152,4 @@ const testModel = () => {
 
 }
 
-export default testModel;
+export default testModel3;
