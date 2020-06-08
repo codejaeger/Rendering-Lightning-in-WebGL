@@ -83,14 +83,14 @@ const testModel = () => {
 
     //keep R2 == radius for now
     var center = [0,0,0]
-    var end = [1,0,0]
+    var end = [-1,0,0]
     let system = new PlasmaBallSystem(5.2, center, end, 1.5, 60, 3, (pos) => {
         return utils.distance(pos, center) > 60;
     // }, utils.potFuncForUnitCenteredCharge)
     })
 
 
-    system.init([0, -60, 0])
+    system.init([-1,0,0])
     system.evolve()
     let graph = system.graph;
     graph.calcChannels();
@@ -108,7 +108,7 @@ const testModel = () => {
         if(!gr.updateScene()) {
             // done updating start again
             scene.remove(gr.sceneObj);
-            system.init([0, -60, 0])
+            system.init([-1, 0, 0])
             system.evolve()
             graph = system.graph
             graph.calcChannels();

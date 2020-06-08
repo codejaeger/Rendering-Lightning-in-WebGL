@@ -255,7 +255,7 @@ export default function teslaCoil() {
             graphRenderer = new GraphRenderer(graph, arcHolder, [
                 GLBL.primCol,
                 GLBL.secCol
-            ], [GLBL.primRad, GLBL.secRad]);
+            ], [0.30, 0.05]);
             scene.add(arcHolder);
         }
 
@@ -276,7 +276,7 @@ export default function teslaCoil() {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.5);
-        // sound.play();
+        sound.play();
     });
 
 

@@ -45,7 +45,6 @@ export default class PlasmaBallSystem {
 
     init(surfacePoint) {
         // free up older configuration
-        console.log(this.transform([0,-60,0]))
         this.surfacePoint = surfacePoint
         this.charges = {}
         this.candidates = []
@@ -211,7 +210,7 @@ export default class PlasmaBallSystem {
 
             const { endPoints, key } = this.evolveOnce(0);
             if (this.hitsBoundary(endPoints[1])) {
-                console.log('hit', key)
+                // console.log('hit', key)
                 // update graph channels 
                 this.graph.boundaryAt(key.toString());
                 this.graph.calcChannels();
