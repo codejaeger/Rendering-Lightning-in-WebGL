@@ -28,6 +28,7 @@ export default class ArcsGraph {
     }
 
     insertNode(key, pos, pot, pkey,updateAdjList = true) {
+        // console.log(key, pkey)
 
         this.nodes[key] = {
             key,
@@ -66,8 +67,9 @@ export default class ArcsGraph {
         let key = this.boundary
         // console.log("Reached")
         // console.log(key, this.root)
+        // console.log("Hello", key, this.root, this.boundary, this.nodes[key])
         while(key!==this.root) {
-            // console.log("Hello", key)
+            // console.log("Hello", key, this.root, this.boundary, this.nodes[key])
             let pkey = this.nodes[key].pkey;
             this.adjList[pkey][key] = 0;
             key = pkey;

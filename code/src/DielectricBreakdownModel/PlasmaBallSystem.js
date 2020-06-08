@@ -34,6 +34,7 @@ export default class PlasmaBallSystem {
             // console.log([a.x+this.ballCenter[0], a.y+this.ballCenter[1], a.z+this.ballCenter[2]],"helo")
             return [a.x+this.ballCenter[0], a.y+this.ballCenter[1], a.z+this.ballCenter[2]]
         }
+        // console.log(this.transform([0,-60,0]), "x")
         // console.log(this.rotateAngle)
     }
 
@@ -45,14 +46,26 @@ export default class PlasmaBallSystem {
 
     init(surfacePoint) {
         // free up older configuration
-        console.log(this.transform([0,-60,0]))
+        console.log(this.transform([0,-60,0]), "x")
         this.surfacePoint = surfacePoint
+        var v1 = new THREE.Vector3(0,-1,0)
+        var v2 = new THREE.Vector3(this.ballCenter[0]-this.surfacePoint[0],this.ballCenter[1]-this.surfacePoint[1],this.ballCenter[2]-this.surfacePoint[2])
+        var v3 = new THREE.Vector3(0,0,0)
+        v3.crossVectors(v1, v2)
+        v3.normalize()
+        this.axis = v3
+        this.rotateAngle = -1*v3.angleTo(v1)
+        this.transform = (pos) => {
+            var a = new THREE.Vector3(pos[0]-this.ballCenter[0], pos[1]-this.ballCenter[1], pos[2]-this.ballCenter[2])
+            a.applyAxisAngle(this.axis, this.rotateAngle)
+            // console.log([a.x+this.ballCenter[0], a.y+this.ballCenter[1], a.z+this.ballCenter[2]],"helo")
+            return [a.x+this.ballCenter[0], a.y+this.ballCenter[1], a.z+this.ballCenter[2]]
+        }
         this.charges = {}
         this.candidates = []
         this.graph = new ArcsGraph()
 
         this.graph.rootAt(this.ballCenter.toString());
-        this.graph.transform = this.transform
         var candidate1 = {}
         var rootkey = this.ballCenter.toString()
         candidate1[rootkey] = new Candidate(
@@ -211,7 +224,9 @@ export default class PlasmaBallSystem {
 
             const { endPoints, key } = this.evolveOnce(0);
             if (this.hitsBoundary(endPoints[1])) {
-                console.log('hit', key)
+                console.log(endPoints[1], "H1")
+                console.log(this.transform(endPoints[1]), "H2")
+                // console.log('hit', key)
                 // update graph channels 
                 this.graph.boundaryAt(key.toString());
                 this.graph.calcChannels();
