@@ -16,9 +16,33 @@ import testModel1 from './test-scripts/test1';
 import teslaCoil from './scenes/teslaCoil';
 import plasmaBall from './scenes/plasmaBall';
 import electrodes from './scenes/electrodes';
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module';
 
-// testModel3()
 
-teslaCoil(); 
-// plasmaBall();
-// electrodes();
+function renderModel(model) {
+    switch (model) {
+        case 'teslacoil':
+            teslaCoil();
+            break;
+        case 'plasmaball':
+            plasmaBall();
+            break;
+        case 'electrodes':
+            electrodes();
+            break;
+        default:
+            console.log('nothing selected');
+    }
+}
+
+let models = ['teslacoil', 'plasmaball', 'electrodes']
+
+models.forEach((model) => {
+    document.getElementById(model).onclick = ((event) => {
+        document.getElementById('modelForm').innerHTML = `
+            <canvas id='c'></canvas>
+        `;
+
+        renderModel(model);
+    })
+})

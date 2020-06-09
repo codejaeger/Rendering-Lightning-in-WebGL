@@ -188,7 +188,7 @@ export default function electrodes() {
     scene.add(objectsHolder);
     scene.add(arcHolder);
 
-    const speed = 20;
+    const speed = 25;
     // define scene update function
     const update = () => {
         for (let i = 0; i < speed - 1; i++)graphRenderer.updateScene();

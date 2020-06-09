@@ -208,13 +208,21 @@ const dbm = () => {
         return flag;
     }
 
-    
+    let obj = {x:1};
     // effects controller
     const gui = new GUI();
     {
         const folder = gui.addFolder('BloomPass');
         folder.add(bloomPass.copyUniforms.opacity, 'value', 0, 2).name('strength');
         folder.open();
+        
+    }
+    {
+        const folder = gui.addFolder('tmp');
+        folder.add(obj, 'x', 0, 2).name('strength').onChange(e=>console.log(e))
+        
+        folder.open();
+        
     }
     {
         const folder = gui.addFolder('FilmPass');
