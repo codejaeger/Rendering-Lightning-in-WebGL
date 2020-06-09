@@ -19,6 +19,6 @@ import electrodes from './scenes/electrodes';
 
 // testModel3()
 
-// teslaCoil(); 
+teslaCoil(); 
 // plasmaBall();
-electrodes();
+// electrodes();

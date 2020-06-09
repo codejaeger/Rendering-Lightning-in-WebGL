@@ -20,7 +20,7 @@ export default function teslaCoil() {
     //  create scene and setup camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 100, 100);
+    camera.position.set(0, 100, 200);
     camera.lookAt(0, 0, 0);
     camera.layers.enable(1);
 
@@ -156,6 +156,17 @@ export default function teslaCoil() {
     toroid.add(tor);
     toroid.add(topdisc);
 
+    // create top electrode
+    const elR = 1;
+    const elH = 15;
+    const elGeo = new THREE.ConeBufferGeometry(elR, elH, 30);
+    const elMat = new THREE.MeshPhongMaterial({
+        color: 'grey'
+    });
+    const eltrd = new THREE.Mesh(elGeo, elMat);
+
+
+
 
 
     /* create teslacoil */
@@ -176,6 +187,11 @@ export default function teslaCoil() {
     toroid.translateY(boxh / 2 + primCoilHeight)
     objectsHolder.add(toroid);
 
+    // add top electrode
+
+    eltrd.translateY(elH / 2 + boxh / 2 + primCoilHeight);
+    objectsHolder.add(eltrd);
+
     // define charge generator
     function generateCharges(H, R, r, n = 30) {
         // sample list of charges on toroid
@@ -194,7 +210,9 @@ export default function teslaCoil() {
         return chargesList;
     }
 
-    const chargesList = generateCharges(primCoilHeight + boxh / 2, primCoilRadius + torTubeRadius, torTubeRadius,10);
+    // const chargesList = generateCharges(primCoilHeight + boxh / 2, primCoilRadius + torTubeRadius, torTubeRadius, 4);
+    const chargesList = [[0, elH + boxh / 2 + primCoilHeight, 0]];
+
     function renderCharge() {
 
         const obj = new THREE.Object3D()
@@ -212,13 +230,17 @@ export default function teslaCoil() {
 
 
     /* 
-        init the system of charges
+    init the system of charges
     */
     let origin = [0, primCoilHeight + boxh / 2, 0]
-    let arcSystem = new ElectroStaticSystem(chargesList, GLBL.ETA, GLBL.R1, GLBL.R2, GLBL.A, (pos) => {
-        return utils.distance(pos, origin) > GLBL.R2;
-    }, utils.potFuncForUnitCenteredCharge)
-    // }, (pos, rad) => { return utils.potFuncForPlaneCharge(pos, rad, GLBL.R2) })
+
+    function createArcSystem() {
+        return new ElectroStaticSystem(chargesList,8, 1.25, 30, 2.5, (pos) => {
+            return utils.distance(pos, origin) > 30;
+        }, utils.potFuncForUnitCenteredCharge)
+    }
+
+    let arcSystem = createArcSystem();
 
 
     // iterate once 
@@ -255,7 +277,7 @@ export default function teslaCoil() {
             graphRenderer = new GraphRenderer(graph, arcHolder, [
                 GLBL.primCol,
                 GLBL.secCol
-            ], [0.30, 0.05]);
+            ],[GLBL.primRad, GLBL.secRad]);
             scene.add(arcHolder);
         }
 
@@ -276,7 +298,7 @@ export default function teslaCoil() {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.5);
-        sound.play();
+        // sound.play();
     });
 
 
@@ -294,7 +316,7 @@ export default function teslaCoil() {
         // render arcs of tesla coil
         camera.layers.set(1);
         composer.render(delta);
-        
+
         // render model of tesla coil
         renderer.clearDepth();
         camera.layers.set(0);
