@@ -15,7 +15,10 @@ import testModel1 from './test-scripts/test1';
 // scenes
 import teslaCoil from './scenes/teslaCoil';
 import plasmaBall from './scenes/plasmaBall';
+import electrodes from './scenes/electrodes';
 
-testModel3()
+// testModel3()
+
 // teslaCoil(); 
 // plasmaBall();
+electrodes();

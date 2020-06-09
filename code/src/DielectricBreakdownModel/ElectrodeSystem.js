@@ -88,7 +88,7 @@ export default class ElectrodeSystem {
         )
         this.candidates.push(candidate1)
         this.candidates.push(candidate2)
-        console.log("init")
+        // console.log("init")
         this.graph.insertNode(rootkey, this.transform(this.sphereCenter1), 0, rootkey)
         this.insertCharge(rootkey, this.R1,  this.sphereCenter1, -1)
 
@@ -291,7 +291,7 @@ export default class ElectrodeSystem {
 
     evolveOnce(ckey) {
         // calc prob of candidate sites
-        console.log(ckey)
+        // console.log(ckey)
         // console.log(this.candidates[0], "heo")
         // console.log(this.candidates[1], "helo")
         const keys = Object.keys(this.candidates[ckey]);
@@ -382,8 +382,8 @@ export default class ElectrodeSystem {
                 const { ep, ky } = this.evolveOnce(1);
             }
             if (this.hitsBoundary(endPoints[1])) {
-                console.log(this.transform(endPoints[1]))
-                console.log('hit', key)
+                // console.log(this.transform(endPoints[1]))
+                // console.log('hit', key)
                 // update graph channels 
                 this.graph.boundaryAt(key.toString());
                 this.graph.calcChannels();

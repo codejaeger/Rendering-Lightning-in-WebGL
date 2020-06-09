@@ -9,18 +9,18 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 import GLBL from '../DielectricBreakdownModel/Globals';
-import ElectroStaticSystem from '../DielectricBreakdownModel/ElectroStaticSystem';
+import ElectrodeSystem from '../DielectricBreakdownModel/ElectrodeSystem';
 import * as utils from '../DielectricBreakdownModel/Utils';
 import GraphRenderer from '../DielectricBreakdownModel/GraphRenderer'
 
 
 
-export default function teslaCoil() {
+export default function electrodes() {
 
     //  create scene and setup camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 100, 100);
+    camera.position.set(0, 0, 250);
     camera.lookAt(0, 0, 0);
     camera.layers.enable(1);
 
@@ -84,148 +84,96 @@ export default function teslaCoil() {
 
 
     // create bottom box 
-    const boxl = 50, boxh = 5, boxw = 50;
+    const boxl = 250, boxh = 20, boxw = 100;
     const boxGeo = new THREE.BoxBufferGeometry(boxl, boxh, boxw)
     const boxMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/Walnut.jpg'),
+        map: texLoader.load('src/data/metal.jpg'),
     });
     const bottomBox = new THREE.Mesh(boxGeo, boxMat);
 
-    // create primary coil
-    const primCoilRadius = 10;
-    const primCoilHeight = 60;
-    const primCoilGeo = new THREE.CylinderBufferGeometry(primCoilRadius, primCoilRadius, primCoilHeight, 32);
-    const primCoilMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/cwire.jpg')
-    })
-    const primCoil = new THREE.Mesh(primCoilGeo, primCoilMat);
+    // create charged ball
 
-    // create secondary coil
-    const secCoil = new THREE.Object3D();
-    const secCoilRadius = 15
-    const secCoilTubRadius = 0.5;
-    const secGeo = new THREE.TorusBufferGeometry(secCoilRadius, secCoilTubRadius, 10, 30);
-    const secMat = new THREE.MeshPhongMaterial({
+    const ballR = 17;
+    const d = 50;
+    const ballGeo = new THREE.DodecahedronBufferGeometry(ballR, 3);
+    const lballMat = new THREE.MeshPhongMaterial({
+        color:'#330000'
+    })
+    const rballMat = new THREE.MeshPhongMaterial({
+        color:'#00264d'
+    })
+
+    const lBall = new THREE.Mesh(ballGeo, lballMat);
+    const rBall = new THREE.Mesh(ballGeo, rballMat);
+
+    // create rods
+    const rodr = 5;
+    const rodR = 8;
+    const rodt = 2;
+    const rodH = 90;
+    const numRings = 15;
+    const rodGeo = new THREE.CylinderBufferGeometry(rodr, rodr, rodH, 32);
+    const rodMat = new THREE.MeshPhongMaterial({
+        map: texLoader.load('src/data/rod.jpg')
+    })
+    const ringGeo = new THREE.TorusBufferGeometry(rodR, rodt, 10, 30);
+    const ringMat = new THREE.MeshPhongMaterial({
         map: texLoader.load('src/data/sc.jpeg')
     });
 
-    const harr = [-4, , -2, 0, 2, 4];
-    (harr).forEach((dy) => {
-        const sc = new THREE.Mesh(secGeo, secMat);
-        sc.translateY(dy);
-        sc.rotateX(Math.PI / 2);
-        secCoil.add(sc);
-    })
+    function addRingsToRod(_rod) {
+        const del = rodH / numRings;
+        for (let i = del; i < rodH; i += del) {
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotateX(Math.PI / 2);
+            ring.translateZ(rodH / 2 - i);
+            _rod.add(ring);
+        }
+    }
 
-    // create holdingrods
-    const hrods = new THREE.Object3D();
-    const hrodl = 2, hrodw = 2, hrodh = 2 * harr[harr.length - 1] + 1;
-    const hrodGeo = new THREE.BoxBufferGeometry(hrodl, hrodh, hrodw);
-    const hrodMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/rod.jpg')
-    });
+    const lRod = new THREE.Object3D();
+    lRod.add(new THREE.Mesh(rodGeo, rodMat));
+    addRingsToRod(lRod);
 
-    ([Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4, 7 * Math.PI / 4]).forEach((theta) => {
-        const c = Math.cos(theta);
-        const s = Math.sin(theta);
-        const hrod = new THREE.Mesh(hrodGeo, hrodMat);
-        hrod.translateX(secCoilRadius * c);
-        hrod.translateZ(secCoilRadius * s);
-        hrod.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), theta);
-        hrods.add(hrod);
-    })
+    const rRod = new THREE.Object3D();
+    rRod.add(new THREE.Mesh(rodGeo, rodMat));
+    addRingsToRod(rRod);
 
+    /* create electrode system */
 
-    // create top toroid ring 
-    const torTubeRadius = 5;
-    const toroidGeo = new THREE.TorusBufferGeometry(primCoilRadius + torTubeRadius, torTubeRadius, 10, 30);
-    const toroidMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/tor.jpg')
-    })
-
-    const tor = new THREE.Mesh(toroidGeo, toroidMat);
-
-    // create top disc
-    const topdiscGeo = new THREE.CylinderBufferGeometry(primCoilRadius, primCoilRadius, 2, 32);
-    const topdisc = new THREE.Mesh(topdiscGeo, toroidMat);
-
-    tor.rotateX(Math.PI / 2);
-
-    // combine them into toroid
-    const toroid = new THREE.Object3D();
-    toroid.add(tor);
-    toroid.add(topdisc);
-
-
-
-    /* create teslacoil */
     // add bottom box
+    bottomBox.translateY(-1 * (boxh / 2 + rodH))
     objectsHolder.add(bottomBox);
 
-    // add secondary coil with holder
-    secCoil.translateY(boxh / 2 + harr[harr.length - 1] + secCoilTubRadius);
-    hrods.translateY(boxh / 2 + harr[harr.length - 1] + secCoilTubRadius);
-    objectsHolder.add(hrods);
-    objectsHolder.add(secCoil);
+    // add charged balls
+    lBall.translateX(-d);
+    rBall.translateX(d);
+    objectsHolder.add(lBall);
+    objectsHolder.add(rBall);
 
-    // add primary coil
-    primCoil.translateY(boxh / 2 + primCoilHeight / 2);
-    objectsHolder.add(primCoil);
+    // add rods
+    lRod.translateY(-rodH / 2);
+    lRod.translateX(-d);
+    rRod.translateY(-rodH / 2);
+    rRod.translateX(d);
 
-    // add toroid 
-    toroid.translateY(boxh / 2 + primCoilHeight)
-    objectsHolder.add(toroid);
-
-    // define charge generator
-    function generateCharges(H, R, r, n = 30) {
-        // sample list of charges on toroid
-        let chargesList = []
-        for (let theta = 0; theta <= 2 * Math.PI; theta += 2 * Math.PI / n) {
-            for (let phi = 0; phi <= Math.PI; phi += Math.PI / n) {
-                const rcos = r * Math.cos(phi);
-                const rsin = r * Math.sin(phi);
-                const y = H + rcos;
-                const x = (rsin + R) * Math.cos(theta);
-                const z = (rsin + R) * Math.sin(theta);
-
-                chargesList.push([x, y, z]);
-            }
-        }
-        return chargesList;
-    }
-
-    const chargesList = generateCharges(primCoilHeight + boxh / 2, primCoilRadius + torTubeRadius, torTubeRadius,10);
-    function renderCharge() {
-
-        const obj = new THREE.Object3D()
-        chargesList.forEach(p => {
-            const dotGeometry = new THREE.BoxBufferGeometry(2, 2, 2);
-            const dot = new THREE.Mesh(dotGeometry, boxMat);
-            dot.translateX(p[0]);
-            dot.translateY(p[1]);
-            dot.translateZ(p[2]);
-            obj.add(dot);
-        })
-        console.log(chargesList);
-        scene.add(obj);
-    }
-
+    objectsHolder.add(lRod);
+    objectsHolder.add(rRod);
 
     /* 
         init the system of charges
     */
-    let origin = [0, primCoilHeight + boxh / 2, 0]
-    let arcSystem = new ElectroStaticSystem(chargesList, GLBL.ETA, GLBL.R1, GLBL.R2, GLBL.A, (pos) => {
-        return utils.distance(pos, origin) > GLBL.R2;
-    }, utils.potFuncForUnitCenteredCharge)
-    // }, (pos, rad) => { return utils.potFuncForPlaneCharge(pos, rad, GLBL.R2) })
-
+    let origin = [-d, 0, 0]
+    let target = [d, 0, 0];
+    let arcSystem = new ElectrodeSystem(6.5, origin, target, 1.5, 2 * d, 3, (pos) => {
+        return utils.distance(pos, origin) > 2 * d;
+    })
 
     // iterate once 
-    arcSystem.init()
+    arcSystem.init(target);
     arcSystem.evolve()
     let graph = arcSystem.graph;
-
+    graph.calcChannels();
     // init the arc holder 3d object
     let arcHolder = new THREE.Object3D();
     arcHolder.layers.set(1);
@@ -240,14 +188,14 @@ export default function teslaCoil() {
     scene.add(objectsHolder);
     scene.add(arcHolder);
 
-    const speed = 10;
+    const speed = 20;
     // define scene update function
     const update = () => {
         for (let i = 0; i < speed - 1; i++)graphRenderer.updateScene();
         if (!graphRenderer.updateScene()) {
             // refresh
             scene.remove(arcHolder);
-            arcSystem.init();
+            arcSystem.init(target);
             arcSystem.evolve();
             graph = arcSystem.graph;
             arcHolder = new THREE.Object3D();
@@ -255,7 +203,7 @@ export default function teslaCoil() {
             graphRenderer = new GraphRenderer(graph, arcHolder, [
                 GLBL.primCol,
                 GLBL.secCol
-            ], [0.30, 0.05]);
+            ], [GLBL.primRad, GLBL.secRad]);
             scene.add(arcHolder);
         }
 
@@ -276,7 +224,7 @@ export default function teslaCoil() {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.5);
-        sound.play();
+        // sound.play();
     });
 
 
@@ -294,7 +242,7 @@ export default function teslaCoil() {
         // render arcs of tesla coil
         camera.layers.set(1);
         composer.render(delta);
-        
+
         // render model of tesla coil
         renderer.clearDepth();
         camera.layers.set(0);
