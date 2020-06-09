@@ -16,5 +16,5 @@ import teslaCoil from './scenes/teslaCoil';
 import plasmaBall from './scenes/plasmaBall';
 
 // testModel1()
-// teslaCoil(); 
-plasmaBall()
+teslaCoil(); 
+// plasmaBall()
