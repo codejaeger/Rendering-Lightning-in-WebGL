@@ -23,7 +23,7 @@ module.exports = {
                     {
                         loader: 'file-loader',
                         options: {
-                            publicPath: '/static/frontend'
+                            publicPath: '/data/'
                         }
                     }
                 ]

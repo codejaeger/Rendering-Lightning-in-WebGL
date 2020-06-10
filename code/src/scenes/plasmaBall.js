@@ -89,7 +89,7 @@ export default function plasmaBall() {
     const baseH = 20;
     const baseGeo = new THREE.CylinderBufferGeometry(baseRup, baseRdown, baseH, 5);
     const baseMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/metal.jpg')
+        map: texLoader.load('/data/metal.jpg')
     })
     const base = new THREE.Mesh(baseGeo, baseMat);
 
@@ -106,7 +106,7 @@ export default function plasmaBall() {
     const cballR = 10;
     const cballGeo = new THREE.DodecahedronBufferGeometry(cballR, 3);
     const cballMat = new THREE.MeshBasicMaterial({
-        map: texLoader.load('src/data/cball.png')
+        map: texLoader.load('/data/cball.png')
     })
     const cball = new THREE.Mesh(cballGeo, cballMat);
 
@@ -115,7 +115,7 @@ export default function plasmaBall() {
     const shellR = rodH;
     const shellGeo = new THREE.DodecahedronBufferGeometry(shellR, 3);
     const shellMat = new THREE.MeshBasicMaterial({
-        map: texLoader.load('src/data/glass.jpg'),
+        map: texLoader.load('/data/glass.jpg'),
         opacity: 0.25,
         transparent: true
     });
@@ -294,7 +294,7 @@ export default function plasmaBall() {
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('src/data/sound', function (buffer) {
+    audioLoader.load('/data/sound', function (buffer) {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.5);

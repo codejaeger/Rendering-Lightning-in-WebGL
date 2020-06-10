@@ -13,8 +13,6 @@ import ElectroStaticSystem from '../DielectricBreakdownModel/ElectroStaticSystem
 import * as utils from '../DielectricBreakdownModel/Utils';
 import GraphRenderer from '../DielectricBreakdownModel/GraphRenderer'
 
-
-
 export default function teslaCoil() {
 
     //  create scene and setup camera
@@ -87,7 +85,7 @@ export default function teslaCoil() {
     const boxl = 50, boxh = 5, boxw = 50;
     const boxGeo = new THREE.BoxBufferGeometry(boxl, boxh, boxw)
     const boxMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/Walnut.jpg'),
+        map: texLoader.load('/data/Walnut.jpg'),
     });
     const bottomBox = new THREE.Mesh(boxGeo, boxMat);
 
@@ -96,7 +94,7 @@ export default function teslaCoil() {
     const primCoilHeight = 60;
     const primCoilGeo = new THREE.CylinderBufferGeometry(primCoilRadius, primCoilRadius, primCoilHeight, 32);
     const primCoilMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/cwire.jpg')
+        map: texLoader.load('/data/cwire.jpg')
     })
     const primCoil = new THREE.Mesh(primCoilGeo, primCoilMat);
 
@@ -106,7 +104,7 @@ export default function teslaCoil() {
     const secCoilTubRadius = 0.5;
     const secGeo = new THREE.TorusBufferGeometry(secCoilRadius, secCoilTubRadius, 10, 30);
     const secMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/sc.jpeg')
+        map: texLoader.load('/data/sc.jpeg')
     });
 
     const harr = [-4, , -2, 0, 2, 4];
@@ -122,7 +120,7 @@ export default function teslaCoil() {
     const hrodl = 2, hrodw = 2, hrodh = 2 * harr[harr.length - 1] + 1;
     const hrodGeo = new THREE.BoxBufferGeometry(hrodl, hrodh, hrodw);
     const hrodMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/rod.jpg')
+        map: texLoader.load('/data/rod.jpg')
     });
 
     ([Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4, 7 * Math.PI / 4]).forEach((theta) => {
@@ -140,7 +138,7 @@ export default function teslaCoil() {
     const torTubeRadius = 5;
     const toroidGeo = new THREE.TorusBufferGeometry(primCoilRadius + torTubeRadius, torTubeRadius, 10, 30);
     const toroidMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/tor.jpg')
+        map: texLoader.load('/data/tor.jpg')
     })
 
     const tor = new THREE.Mesh(toroidGeo, toroidMat);
@@ -294,7 +292,7 @@ export default function teslaCoil() {
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('src/data/sound', function (buffer) {
+    audioLoader.load('/data/sound', function (buffer) {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.5);

@@ -87,7 +87,7 @@ export default function electrodes() {
     const boxl = 250, boxh = 20, boxw = 100;
     const boxGeo = new THREE.BoxBufferGeometry(boxl, boxh, boxw)
     const boxMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/metal.jpg'),
+        map: texLoader.load('/data/metal.jpg'),
     });
     const bottomBox = new THREE.Mesh(boxGeo, boxMat);
 
@@ -114,11 +114,11 @@ export default function electrodes() {
     const numRings = 15;
     const rodGeo = new THREE.CylinderBufferGeometry(rodr, rodr, rodH, 32);
     const rodMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/rod.jpg')
+        map: texLoader.load('/data/rod.jpg')
     })
     const ringGeo = new THREE.TorusBufferGeometry(rodR, rodt, 10, 30);
     const ringMat = new THREE.MeshPhongMaterial({
-        map: texLoader.load('src/data/sc.jpeg')
+        map: texLoader.load('/data/sc.jpeg')
     });
 
     function addRingsToRod(_rod) {
@@ -220,7 +220,7 @@ export default function electrodes() {
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('src/data/sound', function (buffer) {
+    audioLoader.load('/data/sound', function (buffer) {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.5);
