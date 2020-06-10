@@ -160,7 +160,7 @@ export default class StormCloudSystem {
 
             const { endPoints, key } = this.evolveOnce(0);
             if (this.hitsBoundary(endPoints[1])) {
-                console.log('hit', key)
+                // console.log('hit', key)
                 // update graph channels 
                 this.graph.boundaryAt(key.toString());
                 this.graph.calcChannels();
