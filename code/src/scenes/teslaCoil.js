@@ -233,7 +233,7 @@ export default function teslaCoil() {
     let origin = [0, primCoilHeight + boxh / 2, 0]
 
     function createArcSystem() {
-        return new ElectroStaticSystem(chargesList,8, 1.25, 30, 2.5, (pos) => {
+        return new ElectroStaticSystem(chargesList, 8, 1.25, 30, 2.5, (pos) => {
             return utils.distance(pos, origin) > 30;
         }, utils.potFuncForUnitCenteredCharge)
     }
@@ -275,7 +275,7 @@ export default function teslaCoil() {
             graphRenderer = new GraphRenderer(graph, arcHolder, [
                 GLBL.primCol,
                 GLBL.secCol
-            ],[GLBL.primRad, GLBL.secRad]);
+            ], [GLBL.primRad, GLBL.secRad]);
             scene.add(arcHolder);
         }
 
@@ -323,6 +323,5 @@ export default function teslaCoil() {
     }
 
     requestAnimationFrame(render);
-
 }
 
