@@ -243,22 +243,24 @@ bool scene_t::parse_scenefile(void)
 	nummats++;
 
 	// get list of points from stochastic
-	stochastic_t stoch = stochastic_t(Vector3d(0, 40, 70), -50, 5);
+	stochastic_t stoch = stochastic_t(Vector3d(0, 40, 70), -50,15);
 	std::vector<Vector3d> points = stoch.generate_arc();
-	std::cout <<  "num arcs=> " << points.size() << std::endl;
-	for (size_t i = 0; i < points.size()-1; i++)
+	std::cout << "num arcs=> " << points.size() << std::endl;
+	for (size_t i = 0; i < points.size() - 1; i++)
 	{
 		Vector3d u = points[i];
-		Vector3d v = points[i+1];
-
+		Vector3d v = points[i + 1];
+		double r = 0.5;
 		std::cout << v.x() << " " << v.y() << " " << v.z() << std::endl;
-		
+
 		// insert cylinder
-		object_t *cyl_obj = new cylinder_t(cyl_mat,u,v,0.5);
+		object_t *cyl_obj = new cylinder_t(cyl_mat, u, v, r);
 		numobjs++;
 		objs.push_back(cyl_obj);
+
+		numlits++;
+		lits.push_back(new cylinder_light_t(u, v, r, Vector3d(10, 10, 10), 0.01, 5));
 	}
-	
 
 	return true;
 }

@@ -41,9 +41,7 @@ namespace rt
 	class light_t
 	{
 	private:
-
 	public:
-
 		/// Constructor
 		light_t();
 
@@ -54,10 +52,10 @@ namespace rt
 		* Returns the direct illumination estimate for the point hitpt, where the surface normal is normal, material is mat.
 		* Scene is passed so that the camera position, and the objects can be used for computing the specular component
 		* of direct illumination and the shadow computations.
-		**/ 
-		virtual color_t direct(const Vector3d& hitpt, const Vector3d& normal, const object_t* obj, const scene_t* scn,const ray_t &ray) const = 0;
+		**/
+		virtual color_t direct(const Vector3d &hitpt, const Vector3d &normal, const object_t *obj, const scene_t *scn, const ray_t &ray) const = 0;
 		/// returns pair of (light samples,fraction of tot_intensity) wrt a reference point
-		virtual std::vector<std::pair<Vector3d,double> >get_light_samples(const Vector3d& ref )const=0;
+		virtual std::vector<std::pair<Vector3d, double>> get_light_samples(const Vector3d &ref) const = 0;
 		/// Prints information about the light to the stream.
 		virtual void print(std::ostream &stream) const = 0;
 	};
@@ -77,7 +75,7 @@ namespace rt
 
 	public:
 		/// Constructor
-		point_light_t(const Vector3d& _pos, const Vector3d& _col, const double _ka);
+		point_light_t(const Vector3d &_pos, const Vector3d &_col, const double _ka);
 		/// Destructor
 		virtual ~point_light_t();
 
@@ -85,9 +83,9 @@ namespace rt
 		* Returns the direct illumination estimate for the point hitpt, where the surface normal is normal, material is mat.
 		* Scene is passed so that the camera position, and the objects can be used for computing the specular component
 		* of direct illumination and the shadow computations.
-		**/ 
-		virtual color_t direct(const Vector3d& hitpt, const Vector3d& normal, const object_t* obj, const scene_t* scn,const ray_t& ray) const;
-		virtual std::vector<std::pair<Vector3d,double> >get_light_samples(const Vector3d & ref)const;
+		**/
+		virtual color_t direct(const Vector3d &hitpt, const Vector3d &normal, const object_t *obj, const scene_t *scn, const ray_t &ray) const;
+		virtual std::vector<std::pair<Vector3d, double>> get_light_samples(const Vector3d &ref) const;
 		/// Prints information about the light to the stream.
 		virtual void print(std::ostream &stream) const;
 	};
@@ -107,21 +105,54 @@ namespace rt
 		/// An ambient coefficient. Modulate col with ka to get ambient component of illumination.
 		double ka;
 		int sample_rate;
+
 	public:
-		
 		/// Constructor
-		area_light_t(const Vector3d& _pos,double _r,const Vector3d& _col, const double _ka,int sample_rate);
+		area_light_t(const Vector3d &_pos, double _r, const Vector3d &_col, const double _ka, int sample_rate);
 		/// Destructor
 		virtual ~area_light_t();
 		/** 
 		* Returns the direct illumination estimate for the point hitpt, where the surface normal is normal, material is mat.
 		* Scene is passed so that the camera position, and the objects can be used for computing the specular component
 		* of direct illumination and the shadow computations.
-		**/ 
-		virtual color_t direct(const Vector3d& hitpt, const Vector3d& normal, const object_t* obj, const scene_t* scn,const ray_t& ray) const;
-		virtual std::vector<std::pair<Vector3d,double> >get_light_samples(const Vector3d & ref)const;
+		**/
+		virtual color_t direct(const Vector3d &hitpt, const Vector3d &normal, const object_t *obj, const scene_t *scn, const ray_t &ray) const;
+		virtual std::vector<std::pair<Vector3d, double>> get_light_samples(const Vector3d &ref) const;
 		/// Prints information about the light to the stream.
 		virtual void print(std::ostream &stream) const;
 	};
 
-}
+	class cylinder_light_t : public light_t
+	{
+	private:
+		/// Position of the terminals
+		Vector3d start;
+		Vector3d end;
+
+		// radius of cylinder points wiill be sampled on this surface
+		double radius;
+
+		/// Color of the light. This can be thought of as radiance emitted by the light source.
+		Vector3d col;
+
+		/// An ambient coefficient. Modulate col with ka to get ambient component of illumination.
+		double ka;
+		int sample_rate;
+
+	public:
+		/// Constructor
+		cylinder_light_t(const Vector3d &_s,const Vector3d &_e, double _r, const Vector3d &_col, const double _ka, int sample_rate);
+		/// Destructor
+		virtual ~cylinder_light_t();
+		/** 
+		* Returns the direct illumination estimate for the point hitpt, where the surface normal is normal, material is mat.
+		* Scene is passed so that the camera position, and the objects can be used for computing the specular component
+		* of direct illumination and the shadow computations.
+		**/
+		virtual color_t direct(const Vector3d &hitpt, const Vector3d &normal, const object_t *obj, const scene_t *scn, const ray_t &ray) const;
+		virtual std::vector<std::pair<Vector3d, double>> get_light_samples(const Vector3d &ref) const;
+		/// Prints information about the light to the stream.
+		virtual void print(std::ostream &stream) const;
+	};
+
+} // namespace rt

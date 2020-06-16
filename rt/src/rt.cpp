@@ -10,14 +10,12 @@ void rt::render(const scene_t *scn)
 	unsigned int h = scn->img->get_height();
 	for (unsigned int i = 0; i < w; i++)
 	{
-		if (i % 10 == 0)
-		{
-			std::cout << i << std::endl;
-		}
+		std::cout << i << std::endl;
+		
 		#pragma omp parallel for
 		for (unsigned int j = 0; j < h; j++)
 		{
-
+			// std::cout << "inner=> " << j << '\n';
 			ray_t ray;
 			int d = scn->intg->depth;
 			// get multisamples from image pixel
