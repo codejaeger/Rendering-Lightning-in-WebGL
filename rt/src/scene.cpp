@@ -228,6 +228,38 @@ bool scene_t::parse_scenefile(void)
 		(*lit)->print(std::cerr);
 	}
 
+	// cylinder material
+	material_t *cyl_mat = new simplemat_t("cyl_mat",
+										  color_t(0, 0, 1), // kd
+										  color_t(0.1),		// ks
+										  color_t(0),		// kr
+										  color_t(0),		// kt
+										  0, 0,				// eta, n
+										  false, false,		// ref,tran
+										  false, NULL		// is_tex, image
+	);
+
+	mats.push_back(cyl_mat);
+	nummats++;
+
+	// get list of points from stochastic
+	stochastic_t stoch = stochastic_t(Vector3d(0, 40, 70), -50, 5);
+	std::vector<Vector3d> points = stoch.generate_arc();
+	std::cout <<  "num arcs=> " << points.size() << std::endl;
+	for (size_t i = 0; i < points.size()-1; i++)
+	{
+		Vector3d u = points[i];
+		Vector3d v = points[i+1];
+
+		std::cout << v.x() << " " << v.y() << " " << v.z() << std::endl;
+		
+		// insert cylinder
+		object_t *cyl_obj = new cylinder_t(cyl_mat,u,v,0.5);
+		numobjs++;
+		objs.push_back(cyl_obj);
+	}
+	
+
 	return true;
 }
 
@@ -406,7 +438,8 @@ integrator_t *scene_t::parse_integrator(XMLElement *_elm)
 	{
 		return parse_montecarlo_integrator(elm_child);
 	}
-	else {
+	else
+	{
 		throw std::invalid_argument("Invalid integrator in scene file.");
 	}
 }

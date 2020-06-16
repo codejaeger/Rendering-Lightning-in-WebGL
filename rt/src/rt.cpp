@@ -10,7 +10,10 @@ void rt::render(const scene_t *scn)
 	unsigned int h = scn->img->get_height();
 	for (unsigned int i = 0; i < w; i++)
 	{
-		// std::cout << i << std::endl;
+		if (i % 10 == 0)
+		{
+			std::cout << i << std::endl;
+		}
 		#pragma omp parallel for
 		for (unsigned int j = 0; j < h; j++)
 		{

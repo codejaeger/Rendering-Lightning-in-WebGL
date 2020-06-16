@@ -13,7 +13,7 @@
 		<width double="512" />
 		<height double="512" />
 		<bgcolor color="0.0 0.0 0.0" />
-		<num_samples int="200"/>
+		<num_samples int="60"/>
 	</image>
 
 	<materials>
@@ -169,7 +169,7 @@
 
 	<integrator>
 		<montecarlo>
-			<depth-of-recursion int="4" />
+			<depth-of-recursion int="2" />
 		</montecarlo>
 	</integrator>
 
