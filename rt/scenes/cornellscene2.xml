@@ -10,10 +10,10 @@
 	</camera>
 
 	<image>
-		<width double="128" />
-		<height double="128" />
+		<width double="256" />
+		<height double="256" />
 		<bgcolor color="0.0 0.0 0.0" />
-		<num_samples int="100"/>
+		<num_samples int="200"/>
 	</image>
 
 	<materials>
@@ -142,14 +142,14 @@
 			<radius double="100100" />
 		</sphere>
 
-		<!-- <sphere material="mirror">
+		<sphere material="mirror">
 			<center vector3="17 -35 68" />
 			<radius double="15" />
 		</sphere>
 		<sphere material="glass">
 			<center vector3="-20 -35 60.0" />
 			<radius double="13" />
-		</sphere> -->
+		</sphere>
 
 
 	</objects>

@@ -259,7 +259,7 @@ bool scene_t::parse_scenefile(void)
 		objs.push_back(cyl_obj);
 
 		numlits++;
-		lits.push_back(new cylinder_light_t(u, v, r, Vector3d(10, 10, 10), 0.01, 5));
+		lits.push_back(new cylinder_light_t(u, v, r, Vector3d(4, 6, 12), 0.01, 5));
 	}
 
 	return true;
