@@ -4,7 +4,7 @@
 * Manas Shukla 170050066
 * Debabrata Mandal 170050073
 
----
+
 ## Requirements:
 For running threejs application:
 * The project needs a server application runnning.
@@ -16,11 +16,9 @@ For running ray tracing application:
 * **Eigen** library of c++
 * Common tools(**g++,make**) for compiling c++ code.
 
-<br/>
 
----
 ## [ Rasterization framework ]
----
+
 
 ## Instructions For Running the code ##
 
@@ -70,9 +68,8 @@ There are four Model Currently we render:
 
 <br/>
 
----
 ## [ Ray Tracing framework ]
----
+
 
 ## Instructions For Running the code ##
 
@@ -96,7 +93,7 @@ For Ray tracing we have done stochastic model for generating arcs.
 
 <br/>
 
----
+
 ## References
 1. [**Main Paper**](http://gamma.cs.unc.edu/LIGHTNING/lightning.pdf)
 2. [**Optimization Reference**](http://gamma.cs.unc.edu/FRAC/laplacian_large.pdf)
