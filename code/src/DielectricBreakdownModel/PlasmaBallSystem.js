@@ -22,12 +22,12 @@ export default class PlasmaBallSystem {
         this.graph.rootAt(ballCenter);
 
         var v1 = new THREE.Vector3(0,-1,0)
-        var v2 = new THREE.Vector3(ballCenter[0]-surfacePoint[0],ballCenter[1]-surfacePoint[1],ballCenter[2]-surfacePoint[2])
+        var v2 = new THREE.Vector3(surfacePoint[0]-ballCenter[0],surfacePoint[1]-ballCenter[1],surfacePoint[2]-ballCenter[2])
         var v3 = new THREE.Vector3(0,0,0)
         v3.crossVectors(v1, v2)
         v3.normalize()
         this.axis = v3
-        this.rotateAngle = -1*v3.angleTo(v1)
+        this.rotateAngle = v2.angleTo(v1)
         this.transform = (pos) => {
             var a = new THREE.Vector3(pos[0]-this.ballCenter[0], pos[1]-this.ballCenter[1], pos[2]-this.ballCenter[2])
             a.applyAxisAngle(this.axis, this.rotateAngle)
@@ -49,12 +49,12 @@ export default class PlasmaBallSystem {
         // console.log(this.transform([0,-60,0]), "x")
         this.surfacePoint = surfacePoint
         var v1 = new THREE.Vector3(0,-1,0)
-        var v2 = new THREE.Vector3(this.ballCenter[0]-this.surfacePoint[0],this.ballCenter[1]-this.surfacePoint[1],this.ballCenter[2]-this.surfacePoint[2])
+        var v2 = new THREE.Vector3(this.surfacePoint[0]-this.ballCenter[0],this.surfacePoint[1]-this.ballCenter[1],this.surfacePoint[2]-this.ballCenter[2])
         var v3 = new THREE.Vector3(0,0,0)
         v3.crossVectors(v1, v2)
         v3.normalize()
         this.axis = v3
-        this.rotateAngle = -1*v3.angleTo(v1)
+        this.rotateAngle = v2.angleTo(v1)
         this.transform = (pos) => {
             var a = new THREE.Vector3(pos[0]-this.ballCenter[0], pos[1]-this.ballCenter[1], pos[2]-this.ballCenter[2])
             a.applyAxisAngle(this.axis, this.rotateAngle)
