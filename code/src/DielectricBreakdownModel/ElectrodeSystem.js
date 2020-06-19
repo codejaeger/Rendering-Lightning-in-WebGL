@@ -26,12 +26,12 @@ export default class ElectrodeSystem {
         this.tempDest = [this.sphereCenter1[0], this.sphereCenter1[1] - this.R2, this.sphereCenter1[2]]
 
         var v1 = new THREE.Vector3(0,-1,0)
-        var v2 = new THREE.Vector3(sphereCenter1[0]-sphereCenter2[0],sphereCenter1[1]-sphereCenter2[1],sphereCenter1[2]-sphereCenter2[2])
+        var v2 = new THREE.Vector3(sphereCenter2[0]-sphereCenter1[0],sphereCenter2[1]-sphereCenter1[1],sphereCenter2[2]-sphereCenter1[2])
         var v3 = new THREE.Vector3(0,0,0)
         v3.crossVectors(v1, v2)
         v3.normalize()
         this.axis = v3
-        this.rotateAngle = -1*v3.angleTo(v1)
+        this.rotateAngle = v2.angleTo(v1)
         this.transform = (pos) => {
             var a = new THREE.Vector3(pos[0]-this.sphereCenter1[0], pos[1]-this.sphereCenter1[1], pos[2]-this.sphereCenter1[2])
             a.applyAxisAngle(this.axis, this.rotateAngle)
@@ -56,12 +56,12 @@ export default class ElectrodeSystem {
         // console.log(this.transform([0,-60,0]))
         this.sphereCenter2 = sphereCenter2
         var v1 = new THREE.Vector3(0,-1,0)
-        var v2 = new THREE.Vector3(this.sphereCenter1[0]-this.sphereCenter2[0],this.sphereCenter1[1]-this.sphereCenter2[1],this.sphereCenter1[2]-this.sphereCenter2[2])
+        var v2 = new THREE.Vector3(this.sphereCenter2[0]-this.sphereCenter1[0],this.sphereCenter2[1]-this.sphereCenter1[1],this.sphereCenter2[2]-this.sphereCenter1[2])
         var v3 = new THREE.Vector3(0,0,0)
         v3.crossVectors(v1, v2)
         v3.normalize()
         this.axis = v3
-        this.rotateAngle = -1*v3.angleTo(v1)
+        this.rotateAngle = v2.angleTo(v1)
         this.transform = (pos) => {
             var a = new THREE.Vector3(pos[0]-this.sphereCenter1[0], pos[1]-this.sphereCenter1[1], pos[2]-this.sphereCenter1[2])
             a.applyAxisAngle(this.axis, this.rotateAngle)
