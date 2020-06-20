@@ -93,7 +93,7 @@ export default function electrodes() {
 
     // create charged ball
 
-    const ballR = 17;
+    const ballR = 5;
     const d = 50;
     const ballGeo = new THREE.DodecahedronBufferGeometry(ballR, 3);
     const lballMat = new THREE.MeshPhongMaterial({
@@ -107,8 +107,8 @@ export default function electrodes() {
     const rBall = new THREE.Mesh(ballGeo, rballMat);
 
     // create rods
-    const rodr = 5;
-    const rodR = 8;
+    const rodr = 2;
+    const rodR = 5;
     const rodt = 2;
     const rodH = 90;
     const numRings = 15;
@@ -165,8 +165,8 @@ export default function electrodes() {
     */
     let origin = [-d, 0, 0]
     let target = [d, 0, 0];
-    let arcSystem = new ElectrodeSystem(6.5, origin, target, 1.5, 2 * d, 3, (pos) => {
-        return utils.distance(pos, origin) > 2 * d;
+    let arcSystem = new ElectrodeSystem(10, origin, target, 1.5, 2 * d, 3, (pos) => {
+        return utils.distance(pos, origin) > 2.09 * d;
     })
 
     // iterate once 
